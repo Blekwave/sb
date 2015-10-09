@@ -109,7 +109,8 @@ void operJmp(Emulator *e, int ms){
         fprintf(e->out, "JMP PC <- PC + %d (%d)\n",
                 ms, e->pc + ms);
     }
-    e->pc += ms;
+    e->pc += ms - 2; // This instruction has a single operand. Therefore, PC
+                     // would be increased by 2 after the instruction.
 }
 
 void operJz(Emulator *e, int ms){
@@ -118,7 +119,7 @@ void operJz(Emulator *e, int ms){
                 ms, e->pc + ms, e->psw == zero ? "Tomado" : "Não tomado");
     }
     if (e->psw == zero)
-        e->pc += ms;
+        e->pc += ms - 2;
 }
 
 void operJnz(Emulator *e, int ms){
@@ -127,7 +128,7 @@ void operJnz(Emulator *e, int ms){
                 ms, e->pc + ms, e->psw != zero ? "Tomado" : "Não tomado");
     }
     if (e->psw != zero)
-        e->pc += ms;
+        e->pc += ms - 2;
 }
 
 void operJn(Emulator *e, int ms){
@@ -136,7 +137,7 @@ void operJn(Emulator *e, int ms){
                 ms, e->pc + ms, e->psw == negative ? "Tomado" : "Não tomado");
     }
     if (e->psw == negative)
-        e->pc += ms;
+        e->pc += ms - 2;
 }
 
 void operJnn(Emulator *e, int ms){
@@ -145,7 +146,7 @@ void operJnn(Emulator *e, int ms){
                 ms, e->pc + ms, e->psw != negative ? "Tomado" : "Não tomado");
     }
     if (e->psw != negative)
-        e->pc += ms;
+        e->pc += ms - 2;
 }
 
 void operPush(Emulator *e, int rs){
@@ -173,7 +174,7 @@ void operCall(Emulator *e, int ms){
     }
     e->sp--;
     e->mem[e->sp] = e->pc;
-    e->pc += ms;
+    e->pc += ms - 2;
 }
 
 void operRet(Emulator *e){
@@ -190,6 +191,14 @@ void operHalt(Emulator *e){
     }
 }
 
+/**
+ * Returns the corresponding function for a given instruction specifier in a
+ * union.
+ * @param  ins Instruction specifier (instr enum)
+ * @return     oper union containing the function. The function may be in ei-
+ *             ther union.zero, .one or .two, depending on its number of para-
+ *             meters.
+ */
 oper fetchInstr(instr ins){
     oper out;
 

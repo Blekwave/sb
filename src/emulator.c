@@ -3,6 +3,7 @@
 #include "emulator.h"
 #include "instr.h"
 
+// Operands per instruction, indexed by opcode
 const char instr_operands[] = {
     0, // nop
     2, // load
@@ -79,6 +80,12 @@ Emulator *emuFromFile(const char *in_path, int load_pos){
     return e;
 }
 
+/**
+ * Runs the instruction pointed at by the PC and adjusts the PC for the next
+ * instruction accordingly.
+ * @param  e Emulator for which the instruction shall be run.
+ * @return   identifier of the run instruction.
+ */
 instr runNext(Emulator *e){
     instr ins = (instr) e->mem[e->pc];
     int num_operands = instr_operands[ins];
@@ -105,6 +112,17 @@ instr runNext(Emulator *e){
     return ins;
 }
 
+/**
+ * Runs instructions in an Emulator until a halt instruction is executed.
+ * @param e   Emulator to be run.
+ * @param pc  Initial PC.
+ * @param sp  Initial SP.
+ * @param om  Output mode: simple/verbose
+ * @param in  Input stream for the READ instruction.
+ * @param out Output stream for the WRITE instruction and, if output mode is
+ *            set to verbose, where the detailed runtime logs will be written.
+ *            
+ */
 void emuRun(Emulator *e, int pc, int sp, output_mode om, FILE *in, FILE *out){
     e->pc = pc;
     e->sp = sp;

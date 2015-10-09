@@ -27,10 +27,20 @@ typedef enum {
     instr_halt
 } instr;
 
+// Used to contain a function which performs the OPERation for an instruction.
+// The member in which it should be stored depends on the number of parameters.
 typedef union {
     void(*zero)(Emulator *);
     void(*one)(Emulator *, int);
     void(*two)(Emulator *, int, int);
 } oper;
 
+/**
+ * Returns the corresponding function for a given instruction specifier in a
+ * union.
+ * @param  ins Instruction specifier (instr enum)
+ * @return     oper union containing the function. The function may be in ei-
+ *             ther union.zero, .one or .two, depending on its number of para-
+ *             meters.
+ */
 oper fetchInstr(instr ins);

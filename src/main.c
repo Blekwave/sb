@@ -25,8 +25,10 @@ int main(int argc, char const *argv[])
         om = om_simple;
     }
 
+    // Loads input program
     Emulator *e = emuFromFile(input_path, load_pos);
 
+    // Runs emulator until HALT
     emuRun(e, pc, sp, om, stdin, stdout);
 
     free(e);
