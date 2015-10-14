@@ -25,6 +25,9 @@ void operStore(Emulator *e, int rs, int md){
 
 void operRead(Emulator *e, int rd){
     int prev_val = e->regs[rd];
+    if (e->om == om_verbose){
+        fprintf(e->out, "R%d> ", rd);
+    } 
     fscanf(e->in, "%d", &(e->regs[rd]));
     if (e->om == om_verbose){
         fprintf(e->out, "READ R%d (%d) <- stdin (%d)\n",

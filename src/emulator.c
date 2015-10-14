@@ -80,6 +80,16 @@ Emulator *emuFromFile(const char *in_path, int load_pos){
     return e;
 }
 
+void printRegisters(int *regs, int num_regs, FILE *out){
+    int i;
+    for (i = 0; i < num_regs; i++){
+        if (i % 8 != 7)
+            fprintf(out, "R%02d: %8d | ", i, regs[i]);
+        else
+            fprintf(out, "R%02d: %8d\n", i, regs[i]);
+    }
+}
+
 /**
  * Runs the instruction pointed at by the PC and adjusts the PC for the next
  * instruction accordingly.
@@ -94,6 +104,7 @@ instr runNext(Emulator *e){
         fprintf(e->out, "-----------------------------------------\n");
         fprintf(e->out, "PC: %d (%d), SP: %d, PSW: %d\n", e->pc,
                 e->mem[e->pc], e->sp, e->psw);
+        printRegisters(e->regs, NUM_REGS, e->out);
     }
 
     if (num_operands == 0){
