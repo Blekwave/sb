@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-Map *mapCreate(size_t dsz, int len, int (*hash)(void *key), 
+Map *mapCreate(size_t dsz, int len, unsigned int (*hash)(void *key), 
               int (*keyComp)(void *a, void *b)){
     Map *m = malloc(sizeof(Map));
     m->dsz = dsz;
+    m->len = len;
 
     m->bs = malloc(sizeof(Bucket *) * len);
     for (int i = 0; i < len; i++){
@@ -27,7 +28,7 @@ void mapDestroy(Map *m, void (*freeData)(void *data)){
 }
 
 void mapInsert(Map *m, void *key, size_t ksz, void *data){
-    Bucket *b = m->bs[m->hash(key)];
+    Bucket *b = m->bs[m->hash(key) % m->len];
     BNode *n = bFind(b, key, m->keyComp);
     if (n != NULL){
         memcpy(n->data, data, m->dsz);
@@ -37,7 +38,7 @@ void mapInsert(Map *m, void *key, size_t ksz, void *data){
 }
 
 int mapGet(Map *m, void *key, void *out){
-    Bucket *b = m->bs[m->hash(key)];
+    Bucket *b = m->bs[m->hash(key) % m->len];
     BNode *n = bFind(b, key, m->keyComp);
     if (n != NULL){
         memcpy(out, n->data, m->dsz);
@@ -47,10 +48,11 @@ int mapGet(Map *m, void *key, void *out){
 }
 
 int mapPop(Map *m, void *key, void *out, void (*freeData)(void *data)){
-    Bucket *b = m->bs[m->hash(key)];
+    Bucket *b = m->bs[m->hash(key) % m->len];
     BNode *n = bFind(b, key, m->keyComp);
     if (n != NULL){
-        memcpy(out, n->data, m->dsz);
+        if (out)
+            memcpy(out, n->data, m->dsz);
         bRemove(b, n, free, freeData);
         return 0;
     }

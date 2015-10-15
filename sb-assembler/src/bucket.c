@@ -62,7 +62,7 @@ int bRemove(Bucket *b, BNode *n, void (*freeKey)(void *key),
         return 1;
     }
     prev->next = n->next;
-    if (b->tail = n)
+    if ((b->tail = n))
         b->tail = prev;
     bNodeDestroy(n, freeKey, freeData);
     return 0;
@@ -72,7 +72,7 @@ BNode *bBegin(Bucket *b){
     return b->head->next;
 }
 
-BNode *bEnd(Bucket *b){
+BNode *bEnd(Bucket *b __attribute__((unused))){
     return NULL;
 }
 

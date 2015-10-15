@@ -7,11 +7,11 @@ typedef struct {
     Bucket **bs; // Buckets
     int len; // # of buckets
     size_t dsz; // Size of data
-    int (*hash)(void *key);
+    unsigned int (*hash)(void *key);
     int (*keyComp)(void *a, void *b);
 } Map;
 
-Map *mapCreate(size_t dsz, int len, int (*hash)(void *key), 
+Map *mapCreate(size_t dsz, int len, unsigned int (*hash)(void *key), 
               int (*keyComp)(void *a, void *b));
 
 void mapDestroy(Map *m, void (*freeData)(void *data));
