@@ -69,7 +69,7 @@ int bRemove(Bucket *b, BNode *n, void (*freeKey)(void *key),
 }
 
 BNode *bBegin(Bucket *b){
-    return b->head;
+    return b->head->next;
 }
 
 BNode *bEnd(Bucket *b){

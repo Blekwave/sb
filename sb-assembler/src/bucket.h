@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BUCKET_H
+#define BUCKET_H
 
 #include <stdlib.h> // size_t
 
@@ -38,3 +39,5 @@ BNode *bBegin(Bucket *b);
 BNode *bEnd(Bucket *b);
 
 BNode *bNext(BNode *n);
+
+#endif
