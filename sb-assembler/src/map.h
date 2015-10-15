@@ -1,17 +1,22 @@
+#pragma once
+
+#include "ll.h"
+
 typedef struct {
-    BST *data;
+    LL **bs; // Buckets
     int len; // # of buckets
     size_t dsz; // Data size
-    size_t ksz; // Key size
     int (*hash)(void *key);
+    int (*keyComp)(void *a, void *b);
 } Map;
 
-Map mapCreate(size_t ksz, size_t dsz, int (*hash)(void *key), int len);
+Map *mapCreate(size_t dsz, int len, int (*hash)(void *key), 
+              int (*keyComp)(void *a, void *b));
 
-void mapDelete(Map *m, void (*freeData)(void *data));
+void mapDestroy(Map *m, void (*freeData)(void *data));
 
-void mapInsert(Map *m, void *key, void *data);
+void mapInsert(Map *m, void *key, size_t ksz, void *data);
 
-void mapGet(Map *m, void *key, void *out);
+int mapGet(Map *m, void *key, void *out);
 
-void mapPop(Map *m, void *key, void *out);
+int mapPop(Map *m, void *key, void *out, void (*freeData)(void *data));
