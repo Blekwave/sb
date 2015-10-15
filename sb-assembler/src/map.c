@@ -7,9 +7,9 @@ Map *mapCreate(size_t dsz, int len, int (*hash)(void *key),
     Map *m = malloc(sizeof(Map));
     m->dsz = dsz;
 
-    m->bs = malloc(sizeof(LL *) * len);
+    m->bs = malloc(sizeof(Bucket *) * len);
     for (int i = 0; i < len; i++){
-        m->bs[i] = llCreate();
+        m->bs[i] = bCreate();
     }
 
     m->hash = hash;
@@ -20,25 +20,25 @@ Map *mapCreate(size_t dsz, int len, int (*hash)(void *key),
 
 void mapDestroy(Map *m, void (*freeData)(void *data)){
     for (int i = 0; i < m->len; i++){
-        llDestroy(m->bs[i], free, freeData);
+        bDestroy(m->bs[i], free, freeData);
     }
     free(m->bs);
     free(m);
 }
 
 void mapInsert(Map *m, void *key, size_t ksz, void *data){
-    LL *b = m->bs[m->hash(key)]; // Bucket
-    LLNode *n = llFind(b, key, m->keyComp);
+    Bucket *b = m->bs[m->hash(key)];
+    BNode *n = bFind(b, key, m->keyComp);
     if (n != NULL){
         memcpy(n->data, data, m->dsz);
     } else {
-        llInsert(b, key, ksz, data, m->dsz);
+        bInsert(b, key, ksz, data, m->dsz);
     }
 }
 
 int mapGet(Map *m, void *key, void *out){
-    LL *b = m->bs[m->hash(key)]; // Bucket
-    LLNode *n = llFind(b, key, m->keyComp);
+    Bucket *b = m->bs[m->hash(key)];
+    BNode *n = bFind(b, key, m->keyComp);
     if (n != NULL){
         memcpy(out, n->data, m->dsz);
         return 0;
@@ -47,11 +47,11 @@ int mapGet(Map *m, void *key, void *out){
 }
 
 int mapPop(Map *m, void *key, void *out, void (*freeData)(void *data)){
-    LL *b = m->bs[m->hash(key)]; // Bucket
-    LLNode *n = llFind(b, key, m->keyComp);
+    Bucket *b = m->bs[m->hash(key)];
+    BNode *n = bFind(b, key, m->keyComp);
     if (n != NULL){
         memcpy(out, n->data, m->dsz);
-        llRemove(b, n, free, freeData);
+        bRemove(b, n, free, freeData);
         return 0;
     }
     return 1; // No such key

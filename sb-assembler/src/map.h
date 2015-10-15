@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ll.h"
+#include "bucket.h"
 
 typedef struct {
-    LL **bs; // Buckets
+    Bucket **bs; // Buckets
     int len; // # of buckets
     size_t dsz; // Data size
     int (*hash)(void *key);
