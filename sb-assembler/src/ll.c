@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>  // memcpy
 
-LLNode *llNodeCreate(void *key, size_t ksz, void *data, size_t dsz,
-                     LLNode *next){
-    LLNode *n = malloc(sizeof(LLNode));
+BNode *bNodeCreate(void *key, size_t ksz, void *data, size_t dsz,
+                     BNode *next){
+    BNode *n = malloc(sizeof(BNode));
     n->key = malloc(ksz);
     memcpy(n->key, key, ksz);
     n->data = malloc(dsz);
@@ -13,69 +13,69 @@ LLNode *llNodeCreate(void *key, size_t ksz, void *data, size_t dsz,
     return n;
 }
 
-void llNodeDestroy(LLNode *n, void (*freeKey)(void *key),
+void bNodeDestroy(BNode *n, void (*freeKey)(void *key),
                    void (*freeData)(void *data)){
     freeKey(n->key);
     freeData(n->data);
     free(n);
 }
 
-LL *llCreate(){
-    LL *l = malloc(sizeof(LL));
-    l->head = l->tail = llNodeCreate(NULL, 0, NULL, 0, NULL);
+Bucket *bCreate(){
+   Bucket *l = malloc(sizeof(Bucket));
+    l->head = l->tail = bNodeCreate(NULL, 0, NULL, 0, NULL);
     return l;
 }
 
-void llDestroy(LL *l, void (*freeKey)(void *key),
+void bDestroy(Bucket *b, void (*freeKey)(void *key),
                void (*freeData)(void *data)){
-    LLNode *next;
-    for (LLNode *it = l->head->next; it != NULL; it = next){
+    BNode *next;
+    for (BNode *it = b->head->next; it != NULL; it = next){
         next = it->next;
-        llNodeDestroy(it, freeKey, freeData);
+        bNodeDestroy(it, freeKey, freeData);
     }
-    llNodeDestroy(l->head, free, free);
-    free(l);
+    bNodeDestroy(b->head, free, free);
+    free(b);
 }
 
-LLNode *llFind(LL *l, void *key, int (*comp)(void *a, void *b)){
-    LLNode *cur = l->head->next;
+BNode *bFind(Bucket *b, void *key, int (*comp)(void *a, void *b)){
+    BNode *cur = b->head->next;
     while (cur != NULL && comp(key, cur->key) != 0)
         cur = cur->next;
     return cur;
 }
 
-LLNode *llPrevNode(LL *l, LLNode *n){
-    LLNode *prev = l->head;
+BNode *bPrevNode(Bucket *b, BNode *n){
+    BNode *prev = b->head;
     while (prev != NULL && prev->next != n)
         prev = prev->next;
     return prev;
 }
-void llInsert(LL *l, void *key, size_t ksz, void *data, size_t dsz){
-    LLNode *new = llNodeCreate(key, ksz, data, dsz, NULL);
-    l->tail = l->tail->next = new;
+void bInsert(Bucket *b, void *key, size_t ksz, void *data, size_t dsz){
+    BNode *new = bNodeCreate(key, ksz, data, dsz, NULL);
+    b->tail = b->tail->next = new;
 }
 
-int llRemove(LL *l, LLNode *n, void (*freeKey)(void *key),
+int bRemove(Bucket *b, BNode *n, void (*freeKey)(void *key),
               void (*freeData)(void *data)){
-    LLNode *prev = llPrevNode(l, n);
+    BNode *prev = bPrevNode(b, n);
     if (prev == NULL){
         return 1;
     }
     prev->next = n->next;
-    if (l->tail = n)
-        l->tail = prev;
-    llNodeDestroy(n, freeKey, freeData);
+    if (b->tail = n)
+        b->tail = prev;
+    bNodeDestroy(n, freeKey, freeData);
     return 0;
 }
 
-LLNode *llBegin(LL *l){
-    return l->head;
+BNode *bBegin(Bucket *b){
+    return b->head;
 }
 
-LLNode *llEnd(LL *l){
+BNode *bEnd(Bucket *b){
     return NULL;
 }
 
-LLNode *llNext(LLNode *n){
+BNode *bNext(BNode *n){
     return n->next;
 }
