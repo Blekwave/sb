@@ -11,9 +11,9 @@ typedef enum {
 
 // Used to characterize the output of the last operation
 typedef enum {
-    def,
-    zero,
-    negative
+    def = 0,
+    zero = 1,
+    negative = 2
 } psw;
 
 // The Emulator itself

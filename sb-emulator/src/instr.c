@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include "instr.h"
 
+void updatePSW(psw *psw, int last_res){
+    *psw = (last_res == 0) + (last_res < 0) * 2;
+}
+
 void operNop(Emulator *e){
     if (e->om == om_verbose){
         fprintf(e->out, "NOP\n");
@@ -49,6 +53,7 @@ void operCopy(Emulator *e, int rd, int rs){
                 rd, e->regs[rd], rs, e->regs[rs]);
     }
     e->regs[rd] = e->regs[rs];
+    updatePSW(&e->psw, e->regs[rd]);
 }
 
 void operNeg(Emulator *e, int rd){
@@ -57,6 +62,7 @@ void operNeg(Emulator *e, int rd){
                 rd, e->regs[rd]);
     }
     e->regs[rd] = -1 * e->regs[rd];
+    updatePSW(&e->psw, e->regs[rd]);
 }
 
 void operSub(Emulator *e, int rd, int rs){
@@ -65,6 +71,7 @@ void operSub(Emulator *e, int rd, int rs){
                 rd, e->regs[rd], rs, e->regs[rs]);
     }
     e->regs[rd] -= e->regs[rs];
+    updatePSW(&e->psw, e->regs[rd]);
 }
 
 void operAdd(Emulator *e, int rd, int rs){
@@ -73,6 +80,7 @@ void operAdd(Emulator *e, int rd, int rs){
                 rd, e->regs[rd], rs, e->regs[rs]);
     }
     e->regs[rd] += e->regs[rs];
+    updatePSW(&e->psw, e->regs[rd]);
 }
 
 void operAnd(Emulator *e, int rd, int rs){
@@ -81,6 +89,7 @@ void operAnd(Emulator *e, int rd, int rs){
                 rd, e->regs[rd], rs, e->regs[rs]);
     }
     e->regs[rd] &= e->regs[rs];
+    updatePSW(&e->psw, e->regs[rd]);
 }
 
 void operOr(Emulator *e, int rd, int rs){
@@ -89,6 +98,7 @@ void operOr(Emulator *e, int rd, int rs){
                 rd, e->regs[rd], rs, e->regs[rs]);
     }
     e->regs[rd] |= e->regs[rs];
+    updatePSW(&e->psw, e->regs[rd]);
 }
 
 void operXor(Emulator *e, int rd, int rs){
@@ -97,6 +107,7 @@ void operXor(Emulator *e, int rd, int rs){
                 rd, e->regs[rd], rs, e->regs[rs]);
     }
     e->regs[rd] ^= e->regs[rs];
+    updatePSW(&e->psw, e->regs[rd]);
 }
 
 void operNot(Emulator *e, int rd){
@@ -105,6 +116,7 @@ void operNot(Emulator *e, int rd){
                 rd, e->regs[rd]);
     }
     e->regs[rd] = ~e->regs[rd];
+    updatePSW(&e->psw, e->regs[rd]);
 }
 
 void operJmp(Emulator *e, int ms){

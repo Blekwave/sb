@@ -89,15 +89,14 @@ void asmDestroySymTable(Map *sym_table){
     mapDestroy(sym_table, free);
 }
 
-static void assembleOperand(char *op, op_type t, int ilc_inc,
-                            AsmData *ad, Map *sym_table){
+static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table){
     if (t == op_t_reg){
         fprintf(ad->out, "%s\n", op + 1);
     } else if (t == op_t_imm){
         int pos;
         int get_status = mapGet(sym_table, op, &pos);
         if (get_status == 0)
-            fprintf(ad->out, "%d\n", pos - ad->ilc - ilc_inc);
+            fprintf(ad->out, "%d\n", pos - ad->ilc);
         else
             fprintf(ad->out, "%s\n", op);
     }
@@ -121,10 +120,8 @@ int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table){
         }
         if (ins.type == ins_t_real){
             fprintf(out, "%d\n", ins.data.real.opcode);
-            assembleOperand(l.op1, ins.data.real.op1, 
-                            ins.data.real.num_ops + 1, &ad, sym_table);
-            assembleOperand(l.op2, ins.data.real.op2,
-                            ins.data.real.num_ops + 1, &ad, sym_table);
+            assembleOperand(l.op1, ins.data.real.op1, &ad, sym_table);
+            assembleOperand(l.op2, ins.data.real.op2, &ad, sym_table);
             ad.ilc += 1 + ins.data.real.num_ops;
         } else { // ins_t_pseudo
             int call_status;
