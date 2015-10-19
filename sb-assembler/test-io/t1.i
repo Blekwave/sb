@@ -9,7 +9,7 @@
     LOAD R0 A    ; Recupera valor de R0
     JN MB        ; Caso seja negativo, R1 > R0 
     COPY R2 R0   ; Caso contrario, R0 >=, entao salva valor do primeiro numero em R2
-    JUMP L     
+    JMP L     
 MB: COPY R2 R1   ; Salva valor do segundo numero em R2
  L: WRITE R0     ; Imprime primeiro numero
     WRITE R1	 ; Imprime segundo numero
