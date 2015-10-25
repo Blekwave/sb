@@ -196,7 +196,10 @@ void operRet(Emulator *e){
     if (e->om == om_verbose){
         fprintf(e->out, "RET PC <- Mem[SP]\n");
     }
-    e->pc = e->mem[e->sp];
+    e->pc = e->mem[e->sp] + 1; // RET will always return to the place where a
+                               // call had been executed. RET takes one para-
+                               // meter less than CALL, so compensating for
+                               // that is required by adding 1.
     e->sp++;
 }
 
