@@ -3,33 +3,6 @@
 #include "emulator.h"
 #include "instr.h"
 
-// Operands per instruction, indexed by opcode
-const char instr_operands[] = {
-    0, // nop
-    2, // load
-    2, // store
-    1, // read
-    1, // write
-    2, // copy
-    1, // neg
-    2, // sub
-    2, // add
-    2, // and
-    2, // or
-    2, // xor
-    1, // not
-    1, // jmp
-    1, // jz
-    1, // jnz
-    1, // jn
-    1, // jnn
-    1, // push
-    1, // pop
-    1, // call
-    0, // ret
-    0  // halt
-};
-
 /**
  * Loads data from a file to an Emulator's memory.
  * @param  e        Emulator to which the data will be written.

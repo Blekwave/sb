@@ -35,6 +35,10 @@ typedef union {
     void(*two)(Emulator *, int, int);
 } oper;
 
+// Operands per instruction, indexed by opcode
+// To be used externally (by the Emulator)
+extern const char instr_operands[];
+
 /**
  * Returns the corresponding function for a given instruction specifier in a
  * union.
