@@ -38,22 +38,36 @@ ONE: WORD 1
 ARR_POS: WORD 500
 ARR_SIZE: WORD 7
 MEDIAN_INDEX: WORD 3
+LOADR_PC_OFFSET: WORD 73
+STORER_PC_OFFSET: WORD 94
 
 ; Subrotinas para acesso à memória com endereço nos registradores
 ; R14 - Endereço de leitura/escrita
 ; R15 - Valor lido/a ser escrito
 LOADR:
+    PUSH R13
+    PUSH R14
+    LOAD R13 LOADR_PC_OFFSET
+    SUB R14 R13
     STORE R14 LOADR_POS
     WORD 1; LOAD
     WORD 15; R15
     LOADR_POS: WORD 0; Endereço de onde o dado será lido
+    POP R14
+    POP R13
 RET
 
 STORER:
+    PUSH R13
+    PUSH R14
+    LOAD R13 STORER_PC_OFFSET
+    SUB R14 R13
     STORE R14 STORER_POS
     WORD 2; STORE
     WORD 15; R15
     STORER_POS: WORD 0; Endereço onde o dado será escrito
+    POP R14
+    POP R13
 RET
 
 ; Ordena um vetor na memória
