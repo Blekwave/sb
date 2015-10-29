@@ -34,3 +34,7 @@
 build/
 *.sublime-project
 *.sublime-workspace
+
+doc/doc.pdf
+doc/doc.aux
+doc/doc.log
