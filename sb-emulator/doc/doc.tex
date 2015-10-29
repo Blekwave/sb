@@ -13,7 +13,7 @@
 \usepackage[adobe-utopia]{mathdesign}
 \usepackage[T1]{fontenc}
 
-\usepackage{mdframed}
+% \usepackage{mdframed}
 
 \DeclareGraphicsExtensions{.jpg,.pdf}
 
@@ -34,7 +34,7 @@ O primeiro trabalho prático do semestre propunha a implementação de um emulad
 
 \subsection{Detalhes sobre a Máquina de Khattab}
 
-A máquina virtual se trata de uma arquitetura registrador-registrador (conhecida também como arquitetura \emph{load/store}) com instruções de no máximo dois operandos, que podem corresponder a registradores ou posições de memória, dependendo da instrução. Além dos 16 registradores de $R0$ a $R15$, há, também, alguns registradores de propósito específico:
+A máquina virtual se trata de uma arquitetura registrador-registrador (conhecida também como arquitetura \emph{load/store}) com instruções de no máximo dois operandos, que podem corresponder a registradores ou posições de memória, dependendo da instrução. Além dos 16 registradores de R0 a R15, há, também, alguns registradores de propósito específico:
 
 \begin{itemize}
     \item \textbf{PC}: armazena posição atual a ser executada no programa. Modificado em instruções que alteram o fluxo de execução, como branches, jumps e chamadas a subrotinas.
@@ -50,15 +50,43 @@ A fim de modularizar e garantir boa manutenibilidade, o código do emulador foi 
 
 \subsection{Instr}
 
-Esse módulo é composto de dois arquivos. O header, ``\emph{instr.h}'', contém, além dos protótipos das funções acessíveis externamente, a definição de um \emph{enum} ``\emph{instr}'', que pode assumir vários nomes diferentes que associam os \emph{opcodes} aos nomes mnemônicos das instruções, com a finalidade de melhorar a legibilidade do código.
+Esse módulo é composto de dois arquivos. O header \emph{``instr.h''}, contém, além dos protótipos das funções acessíveis externamente, a definição de um \emph{enum} \emph{``instr''}, que pode assumir vários nomes diferentes que associam os \emph{opcodes} aos nomes mnemônicos das instruções, com a finalidade de melhorar a legibilidade do código.
 
-O arquivo fonte ``\emph{instr.c}'' contém funções que desempenham a operação correspondente a cada instrução do conjunto de instruções definido na máquina virtual. Além dos operandos de cada instrução, essas funções recebem também como parâmetro uma referência ao emulador e seus atributos, permitindo acesso e modificação do banco de registradores, de posições na memória e dos registradores especiais.
+O arquivo fonte \emph{``instr.c''} contém funções que desempenham a operação correspondente a cada instrução do conjunto de instruções definido na máquina virtual. Além dos operandos de cada instrução, essas funções recebem também como parâmetro uma referência ao emulador e seus atributos, permitindo acesso e modificação do banco de registradores, de posições na memória e dos registradores especiais.
 
-Além disso, ``\emph{instr.c}'' define a função \emph{fetchInstr}, que recebe um \emph{opcode} como parâmetro e retorna a função correspondente à instrução. No entanto, em C, ponteiros de funções com protótipo diferente não são iguais, o que dificulta o retorno da função. Para contornar essa dificuldade, foi definido no header um \emph{union} chamado ``\emph{oper}'', que contém um dos três tipos de função das instruções (zero, um ou dois operandos). Para permitir a decodificação do \emph{union}, o módulo define também um vetor que associa o opcode de cada instrução ao seu número de operandos.
+Além disso, \emph{``instr.c''} define a função \emph{fetchInstr}, que recebe um \emph{opcode} como parâmetro e retorna a função correspondente à instrução. No entanto, em C, ponteiros de funções com protótipo diferente não são iguais, o que dificulta o retorno da função. Para contornar essa dificuldade, foi definido no header um \emph{union} chamado \emph{``oper''}, que contém um dos três tipos de função das instruções (zero, um ou dois operandos). Para permitir a decodificação do \emph{union}, o módulo define também um vetor que associa o opcode de cada instrução ao seu número de operandos.
+
+\subsection{Emulator}
+
+O módulo responsável pelo emulador da máquina virtual disponibiliza duas funções externamente no arquivo de \emph{headers} \emph{``emulator.h''}. \emph{``emuFromFile''} cria um novo emulador a partir de um arquivo de entrada, carregando o programa presente nesse arquivo para a memória. \emph{``emuRun''} inicializa o loop de execução do emulador, executando o programa carregado com os parâmetros especificados. Essa função permite, também, acionar o modo \emph{verbose}, que exibe informações de depuração para que o usuário possa avaliar se o programa está se comportando de acordo com o esperado.
+Ainda nos \emph{headers} do módulo, é definido um \emph{struct} \emph{``emulator''}, que contém todos os elementos da máquina virtual: banco de registradores, memória etc. Também são declarados \emph{enums} para os modos de execução (simples e verboso) e para os três valores que o \emph{PSW} pode assumir (negativo, nulo e positivo).
+O arquivo \emph{``emulator.c''} contém a implementação das funções do módulo. A função \emph{``runNext''}, presente nele, executa a próxima instrução no loop de execução da máquina virtual, apontada pelo contador de programa. Para isso, ela chama a função \emph{``fetchInstr''}, definida no módulo \emph{Instr}, e executa a instrução recebida de acordo com seu número de operandos. A função retorna o identificador da instrução executada, para que o loop de execução possa identificar a instrução ``HALT'' e interromper o fluxo do programa. As outras funções desse arquivo não são tão relevantes, e estão documentadas no próprio código fonte.
 
 \section{Compilação e execução}
 
+A compilação do emulador pode ser realizada através da \emph{makefile} disponibilizada ou diretamente através do \emph{GCC} ou outro compilador C. A execução do programa deve ser realizada através da linha de comando, na seguinte forma,
+
+\begin{verbatim}
+    {endereço do executável do emulador} <pc> <sp> <load_pos> <input> [output_mode]
+\end{verbatim}
+
+em que:
+
+\begin{itemize}
+    \item \verb|pc|: valor inicial do \textbf{PC} no emulador.
+    \item \verb|sp|: valor inicial do \textbf{SP} no emulador.
+    \item \verb|load_pos|: posição a partir do qual o programa de entrada será carregado na memória.
+    \item \verb|input|: endereço para o arquivo de entrada, em linguagem de máquina.
+    \item \verb|output_mode|: parâmetro \textbf{opcional} que permite escolher entre os modos de execução simples e verboso. Caso não seja especificado, o programa é executado em modo simples, sem informação de depuração. Valores válidos: \verb|s| (simples) ou \verb|v| (verboso).
+\end{itemize}
+
 \section{Testes realizados}
+
+Na pasta de testes presente no pacote deste trabalho, há diversos programas que foram utilizados para garantir o bom funcionamento do emulador, cobrindo todas as instruções disponibilizadas pela máquina virtual. Segue abaixo uma breve descrição do comportamento de cada programa:
+
+\begin{itemize}
+    \item \verb|t0.i|: 
+\end{itemize}
 
 \section{Conclusão}
 
