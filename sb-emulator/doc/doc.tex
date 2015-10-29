@@ -1,0 +1,65 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[ruled]{algorithm2e}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{float}
+% \floatstyle{boxed}
+% \restylefloat{figure}
+\usepackage[portuguese]{babel}
+\usepackage[]{amsmath}
+\restylefloat{figure}
+
+\usepackage[adobe-utopia]{mathdesign}
+\usepackage[T1]{fontenc}
+
+\usepackage{mdframed}
+
+\DeclareGraphicsExtensions{.jpg,.pdf}
+
+\numberwithin{equation}{section}
+
+\title{Trabalho Prático 1 - Emulador}
+\author{Victor Pires Diniz}
+
+\begin{document}
+\maketitle
+\begin{center}
+Software Básico - 2º Semestre de 2015
+\end{center}
+
+\section{Descrição do trabalho}
+
+O primeiro trabalho prático do semestre propunha a implementação de um emulador que simulasse uma máquina virtual chamada ``Máquina de Khattab''. Esse programa deveria receber como entrada um programa em linguagem de máquina e emular sua execução, instrução a instrução.
+
+\subsection{Detalhes sobre a Máquina de Khattab}
+
+A máquina virtual se trata de uma arquitetura registrador-registrador (conhecida também como arquitetura \emph{load/store}) com instruções de no máximo dois operandos, que podem corresponder a registradores ou posições de memória, dependendo da instrução. Além dos 16 registradores de $R0$ a $R15$, há, também, alguns registradores de propósito específico:
+
+\begin{itemize}
+    \item \textbf{PC}: armazena posição atual a ser executada no programa. Modificado em instruções que alteram o fluxo de execução, como branches, jumps e chamadas a subrotinas.
+    \item \textbf{PSW}: guarda informação sobre o resultado da última operação aritmética realizada, permitindo que instruções funcionem de maneira diferente se tal operação obteve resultado positivo, nulo ou negativo. (Útil para instruções de branch.)
+    \item \textbf{SP}: mantém posição atual da pilha da máquina. Modificado em chamadas a subrotinas ou em instruções que empilham ou desempilham explicitamente.
+\end{itemize}
+
+A memória da máquina virtual tem pelo menos $1000$ posições capazes de armazenar um inteiro. Inteiros são a menos unidade endereçável e o único tipo de dados tratado pela MV. Além dos dados presentes no programa carregado, a máquina atua também na E/S padrão através de instruções de leitura e escrita. Programas são executados até encontrarem uma instrução \emph{HALT}, que indica o fim da execução.
+
+\section{Implementação e decisões de projeto}
+
+A fim de modularizar e garantir boa manutenibilidade, o código do emulador foi dividido em três módulos principais. O módulo \emph{Instr} lida com o comportamento de cada instrução, cada uma com sua própria função. Ele fornece, também, uma função que retorna, com base no \emph{opcode} de uma instrução, a função correspondente. \emph{Emulator}, por sua vez, define o comportamento e a estrutura da máquina virtual em si, permitindo instanciar um emulador, carregar um programa de um arquivo e executar a máquina. Finalmente, o arquivo \emph{main.c} apenas trata os parâmetros de execução em linha de comando e instancia o emulador. Por ser muito simples, não terá sua implementação analisada em mais detalhe, mas detalhes sobre os módulos restantes vêm a seguir.
+
+\subsection{Instr}
+
+Esse módulo é composto de dois arquivos. O header, ``\emph{instr.h}'', contém, além dos protótipos das funções acessíveis externamente, a definição de um \emph{enum} ``\emph{instr}'', que pode assumir vários nomes diferentes que associam os \emph{opcodes} aos nomes mnemônicos das instruções, com a finalidade de melhorar a legibilidade do código.
+
+O arquivo fonte ``\emph{instr.c}'' contém funções que desempenham a operação correspondente a cada instrução do conjunto de instruções definido na máquina virtual. Além dos operandos de cada instrução, essas funções recebem também como parâmetro uma referência ao emulador e seus atributos, permitindo acesso e modificação do banco de registradores, de posições na memória e dos registradores especiais.
+
+Além disso, ``\emph{instr.c}'' define a função \emph{fetchInstr}, que recebe um \emph{opcode} como parâmetro e retorna a função correspondente à instrução. No entanto, em C, ponteiros de funções com protótipo diferente não são iguais, o que dificulta o retorno da função. Para contornar essa dificuldade, foi definido no header um \emph{union} chamado ``\emph{oper}'', que contém um dos três tipos de função das instruções (zero, um ou dois operandos). Para permitir a decodificação do \emph{union}, o módulo define também um vetor que associa o opcode de cada instrução ao seu número de operandos.
+
+\section{Compilação e execução}
+
+\section{Testes realizados}
+
+\section{Conclusão}
+
+\end{document}
