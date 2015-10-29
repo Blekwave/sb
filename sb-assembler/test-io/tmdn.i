@@ -38,8 +38,8 @@ ONE: WORD 1
 ARR_POS: WORD 500
 ARR_SIZE: WORD 7
 MEDIAN_INDEX: WORD 3
-LOADR_PC_OFFSET: WORD 73
-STORER_PC_OFFSET: WORD 94
+LOADR_PC_OFFSET: WORD 75
+STORER_PC_OFFSET: WORD 96
 
 ; Subrotinas para acesso à memória com endereço nos registradores
 ; R14 - Endereço de leitura/escrita

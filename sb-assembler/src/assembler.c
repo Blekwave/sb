@@ -91,8 +91,10 @@ void asmDestroySymTable(Map *sym_table){
 
 static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table){
     if (t == op_t_reg){
+        ad->ilc++;
         fprintf(ad->out, "%s\n", op + 1);
     } else if (t == op_t_imm){
+        ad->ilc++;
         int pos;
         int get_status = mapGet(sym_table, op, &pos);
         if (get_status == 0)
@@ -120,9 +122,9 @@ int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table){
         }
         if (ins.type == ins_t_real){
             fprintf(out, "%d\n", ins.data.real.opcode);
+            ad.ilc++;
             assembleOperand(l.op1, ins.data.real.op1, &ad, sym_table);
             assembleOperand(l.op2, ins.data.real.op2, &ad, sym_table);
-            ad.ilc += 1 + ins.data.real.num_ops;
         } else { // ins_t_pseudo
             int call_status;
             if (ins.data.pseudo.num_ops == 0){
