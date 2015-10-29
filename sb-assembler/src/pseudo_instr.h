@@ -1,3 +1,7 @@
+/**
+ * PSEUDO_INSTR.h
+ * Pseudo-instructions defined by the assembler.
+ */
 #ifndef PSEUDO_INSTR_H
 #define PSEUDO_INSTR_H
 
@@ -5,10 +9,15 @@
 
 #define NUM_PSEUDO_INSTR 2
 
-int psinWord(AsmData *ad, char *val);
-
-int psinEnd(AsmData *ad);
-
+/**
+ * Struct which contains data for execution of a pseudo-instruction.
+ *
+ * num_ops - Number of operands for the pseudo-instruction
+ * ilc_inc - For how much the instruction location counter should be increased
+ *           after executing this pseudo-instruction.
+ * call - Function to be called when the pseudo-instruction is called (union
+ *        field depends on its number of operands)
+ */
 typedef struct {
     int num_ops;
     int ilc_inc;
@@ -19,8 +28,15 @@ typedef struct {
     } call;
 } PseudoInstr;
 
+/**
+ * Array of pseudo-instruction names
+ */
 extern char *pseudo_symbols[];
 
+/**
+ * Array of PseudoInstr structs, indexed by the same index as the instruction
+ * names above.
+ */
 extern PseudoInstr pseudo_instr[];
 
 #endif

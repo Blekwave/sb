@@ -1,3 +1,7 @@
+/**
+ * MAP.h
+ * Generic associative array library.
+ */
 #ifndef MAP_H
 #define MAP_H
 
