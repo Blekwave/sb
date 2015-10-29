@@ -76,9 +76,6 @@ void printRegisters(int *regs, int num_regs, FILE *out){
  * @return   identifier of the run instruction.
  */
 instr runNext(Emulator *e){
-    instr ins = (instr) e->mem[e->pc];
-    int num_operands = instr_operands[ins];
-
     if (e->om == om_verbose){
         fprintf(e->out, "-----------------------------------------\n");
         fprintf(e->out, "PC: %d (%d), SP: %d, PSW: %d\n", e->pc,
@@ -86,18 +83,18 @@ instr runNext(Emulator *e){
         printRegisters(e->regs, NUM_REGS, e->out);
     }
 
+    instr ins = (instr) e->mem[e->pc++];
+    int num_operands = instr_operands[ins];
+
     if (num_operands == 0){
         fetchInstr(ins).zero(e);
-        e->pc++;
     } else if (num_operands == 1){
-        int first_operand = e->mem[e->pc + 1];
+        int first_operand = e->mem[e->pc++];
         fetchInstr(ins).one(e, first_operand);
-        e->pc += 2;
     } else { // num_operands == 2
-        int first_operand = e->mem[e->pc + 1];
-        int second_operand = e->mem[e->pc + 2];
+        int first_operand = e->mem[e->pc++];
+        int second_operand = e->mem[e->pc++];
         fetchInstr(ins).two(e, first_operand, second_operand);
-        e->pc += 3;
     }
     return ins;
 }

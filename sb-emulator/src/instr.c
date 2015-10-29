@@ -13,16 +13,16 @@ void operNop(Emulator *e){
 
 void operLoad(Emulator *e, int rd, int ms){
     if (e->om == om_verbose){
-        fprintf(e->out, "LOAD R%d (%d) <- Mem[%d + PC] (%d)\n",
-                rd, e->regs[rd], ms, e->mem[e->pc + ms]);
+        fprintf(e->out, "LOAD R%d (%d) <- Mem[%d + PC(%d)] (%d)\n",
+                rd, e->regs[rd], ms, e->pc, e->mem[e->pc + ms]);
     }
     e->regs[rd] = e->mem[e->pc + ms];
 }
 
 void operStore(Emulator *e, int rs, int md){
     if (e->om == om_verbose){
-        fprintf(e->out, "STORE R%d (%d) -> Mem[%d + PC] (%d)\n",
-                rs, e->regs[rs], md, e->mem[e->pc + md]);
+        fprintf(e->out, "STORE R%d (%d) -> Mem[%d + PC(%d)] (%d)\n",
+                rs, e->regs[rs], md, e->pc, e->mem[e->pc + md]);
     }
     e->mem[e->pc + md] = e->regs[rs];
 }
@@ -121,47 +121,49 @@ void operNot(Emulator *e, int rd){
 
 void operJmp(Emulator *e, int ms){
     if (e->om == om_verbose){
-        fprintf(e->out, "JMP PC <- PC + %d (%d)\n",
-                ms, e->pc + ms);
+        fprintf(e->out, "JMP PC (%d) <- PC + %d (%d)\n",
+                e->pc, ms, e->pc + ms);
     }
-    e->pc += ms - 2; // This instruction has a single operand. Therefore, PC
-                     // would be increased by 2 after the instruction.
+    e->pc += ms;
 }
 
 void operJz(Emulator *e, int ms){
     if (e->om == om_verbose){
-        fprintf(e->out, "JZ PC <- PC + %d (%d) [%s]\n",
-                ms, e->pc + ms, e->psw == zero ? "Tomado" : "Não tomado");
+        fprintf(e->out, "JZ PC (%d) <- PC + %d (%d) [%s]\n",
+                e->pc, ms, e->pc + ms,
+                e->psw == zero ? "Tomado" : "Não tomado");
     }
     if (e->psw == zero)
-        e->pc += ms - 2;
+        e->pc += ms;
 }
 
 void operJnz(Emulator *e, int ms){
     if (e->om == om_verbose){
-        fprintf(e->out, "JNZ PC <- PC + %d (%d) [%s]\n",
-                ms, e->pc + ms, e->psw != zero ? "Tomado" : "Não tomado");
+        fprintf(e->out, "JNZ PC (%d) <- PC + %d (%d) [%s]\n",
+                e->pc, ms, e->pc + ms,
+                e->psw != zero ? "Tomado" : "Não tomado");
     }
     if (e->psw != zero)
-        e->pc += ms - 2;
+        e->pc += ms;
 }
 
 void operJn(Emulator *e, int ms){
     if (e->om == om_verbose){
-        fprintf(e->out, "JN PC <- PC + %d (%d) [%s]\n",
-                ms, e->pc + ms, e->psw == negative ? "Tomado" : "Não tomado");
+        fprintf(e->out, "JN PC (%d) <- PC + %d (%d) [%s]\n",
+                e->pc, ms, e->pc + ms,
+                e->psw == negative ? "Tomado" : "Não tomado");
     }
     if (e->psw == negative)
-        e->pc += ms - 2;
+        e->pc += ms;
 }
 
 void operJnn(Emulator *e, int ms){
     if (e->om == om_verbose){
-        fprintf(e->out, "JNN PC <- PC + %d (%d) [%s]\n",
-                ms, e->pc + ms, e->psw != negative ? "Tomado" : "Não tomado");
+        fprintf(e->out, "JNN PC (%d) <- PC + %d (%d) [%s]\n",
+                e->pc, ms, e->pc + ms, e->psw != negative ? "Tomado" : "Não tomado");
     }
     if (e->psw != negative)
-        e->pc += ms - 2;
+        e->pc += ms;
 }
 
 void operPush(Emulator *e, int rs){
@@ -184,22 +186,19 @@ void operPop(Emulator *e, int rd){
 
 void operCall(Emulator *e, int ms){
     if (e->om == om_verbose){
-        fprintf(e->out, "CALL Mem[PC + %d] (%d), Mem[SP - 1] <- PC\n",
-                ms, e->mem[e->pc + ms]);
+        fprintf(e->out, "CALL Mem[PC (%d) + %d] (%d), Mem[SP - 1] <- PC\n",
+                e->pc, ms, e->mem[e->pc + ms]);
     }
     e->sp--;
     e->mem[e->sp] = e->pc;
-    e->pc += ms - 2;
+    e->pc += ms;
 }
 
 void operRet(Emulator *e){
     if (e->om == om_verbose){
-        fprintf(e->out, "RET PC <- Mem[SP]\n");
+        fprintf(e->out, "RET PC (%d) <- Mem[SP]\n", e->pc);
     }
-    e->pc = e->mem[e->sp] + 1; // RET will always return to the place where a
-                               // call had been executed. RET takes one para-
-                               // meter less than CALL, so compensating for
-                               // that is required by adding 1.
+    e->pc = e->mem[e->sp];
     e->sp++;
 }
 
