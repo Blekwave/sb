@@ -1,11 +1,10 @@
 \documentclass[10pt,a4paper]{article}
+\usepackage{placeins}
 \usepackage[utf8]{inputenc}
 \usepackage[ruled]{algorithm2e}
 \usepackage{fullpage}
 \usepackage{graphicx}
 \usepackage{float}
-% \floatstyle{boxed}
-% \restylefloat{figure}
 \usepackage[portuguese]{babel}
 \usepackage[]{amsmath}
 \restylefloat{figure}
@@ -82,12 +81,42 @@ em que:
 
 \section{Testes realizados}
 
-Na pasta de testes presente no pacote deste trabalho, há diversos programas que foram utilizados para garantir o bom funcionamento do emulador, cobrindo todas as instruções disponibilizadas pela máquina virtual. Segue abaixo uma breve descrição do comportamento de cada programa:
+Na pasta de testes presente no pacote deste trabalho, há diversos programas que foram utilizados para garantir o bom funcionamento do emulador, cobrindo todas as instruções disponibilizadas pela especificação da máquina virtual. Segue abaixo uma breve descrição do comportamento de cada programa:
 
 \begin{itemize}
-    \item \verb|t0.i|: 
+    \item \verb|t_spec.i|: teste disponibilizado na especificação do trabalho, soma 100 a um número fornecido pelo usuário.
+    \item \verb|t_fib.i|: calcula o número de Fibonacci de acordo com um índice fornecido pelo usuário.
+    \item \verb|t_exp.i|: realiza a exponenciação de um número, de acordo com uma base e um expoente, ambos fornecidos pelo usuário.
+    \item \verb|t_div.i|: realiza a divisão por força bruta de dois números inteiros, retornando quociente e resto.
+    \item \verb|t_mdn.i|: determina a mediana de um conjunto de sete itens fornecidos pelo usuário.
 \end{itemize}
 
+O assembly correspondente a cada teste pode ser encontrado em uma pasta interna à pasta de testes.
+
+\subsection{Imagens de execução dos testes}
+
+\begin{figure}[h]
+    \includegraphics[scale=0.65]{imagens/t_spec_verbose_console.png}
+    \centering
+    \caption{Execução do teste t\_spec.i em modo verboso. Alguns registradores nulos não aparecem na imagem, para permitir melhor visualização.}
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[scale=0.65]{imagens/t_med_console.png}
+    \centering
+    \caption{Execução do teste t\_mdn.i com dois conjuntos diferentes de entrada.}
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[scale=0.65]{imagens/t_div_console.png}
+    \centering
+    \caption{Execução do teste t\_div.i com dois pares diferentes de entrada.}
+\end{figure}
+
+\FloatBarrier
+
 \section{Conclusão}
+
+Neste trabalho, foi implementado um emulador para uma máquina virtual, definido de acordo com a especificação fornecida. O comportamento e a implementação do emulador foram discutidos no contexto dos testes realizados, de forma a garantir que as instruções funcionam como previsto.
 
 \end{document}
