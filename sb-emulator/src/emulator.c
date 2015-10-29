@@ -53,6 +53,12 @@ Emulator *emuFromFile(const char *in_path, int load_pos){
     return e;
 }
 
+/**
+ * Prints the value of each register in the emulator.
+ * @param regs     Array of integers, corresponding to each of the registers.
+ * @param num_regs Number of registers in the current architecture.
+ * @param out      Output stream to which the values will be printed.
+ */
 void printRegisters(int *regs, int num_regs, FILE *out){
     int i;
     for (i = 0; i < num_regs; i++){
