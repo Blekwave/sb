@@ -154,7 +154,7 @@ int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table){
     return 0;
 }
 
-int asmAssemble(const char *src_addr, const char *dest_addr){
+int asmAssemble(const char *src_addr, const char *dest_addr, output_mode om){
     Map *idt = idtCreate();
     FILE *in = fopen(src_addr, "r");
 
@@ -166,7 +166,8 @@ int asmAssemble(const char *src_addr, const char *dest_addr){
 
     int status = asmReplaceAndSave(in, out, idt, sym_table);
 
-    asmPrintSymTable(sym_table);
+    if (om == om_verbose)
+        asmPrintSymTable(sym_table);
 
     fclose(in);
     fclose(out);
