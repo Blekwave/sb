@@ -58,3 +58,33 @@ int mapPop(Map *m, void *key, void *out, void (*freeData)(void *data)){
     }
     return 1; // No such key
 }
+
+void *miData(MapIter *i){
+    return i->n->data;
+}
+
+void *miKey(MapIter *i){
+    return i->n->key;
+}
+
+MapIter mapBegin(Map *m){
+    MapIter i = (MapIter){.n = NULL, .b = -1};
+    while (i.n == NULL && ++i.b < m->len){
+        i.n = bBegin(m->bs[i.b]);
+    }
+    return i;
+}
+
+MapIter mapEnd(Map *m){
+    return (MapIter){
+        .n = NULL,
+        .b = m->len
+    };
+}
+
+void mapNext(Map *m, MapIter *i){
+    i->n = bNext(i->n);
+    while (i->n == NULL && ++i->b < m->len){
+        i->n = bBegin(m->bs[i->b]);
+    }
+}
