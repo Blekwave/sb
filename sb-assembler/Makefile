@@ -2,9 +2,9 @@ CC=gcc
 CFLAGS=-std=c99 -g -pg -Wall -Wextra -Werror
 SRC_DIR=src/
 HEADERS_DIR=src/
-TEST_DIR=test/
-TEST_BUILD_DIR=test-bin/
+TEST_DIR=tst/unit-tests/
 BIN_BUILD_DIR=bin/
+TEST_BUILD_DIR=$(BIN_BUILD_DIR)/test-bin/
 
 
 BUCKET_TEST_SOURCES=bucket.c
@@ -18,6 +18,7 @@ assembler:
 	$(CC) $(CFLAGS) -I$(HEADERS_DIR) -o $(BIN_BUILD_DIR)/montador $(ASSEMBLER_SOURCES:%=$(SRC_DIR)%)
 
 tests:
+	mkdir $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) -I$(HEADERS_DIR) -o $(TEST_BUILD_DIR)/bucket $(TEST_DIR)/bucket.c $(BUCKET_TEST_SOURCES:%=$(SRC_DIR)%)
 	$(CC) $(CFLAGS) -I$(HEADERS_DIR) -o $(TEST_BUILD_DIR)/map $(TEST_DIR)/map.c $(MAP_TEST_SOURCES:%=$(SRC_DIR)%)
 	$(CC) $(CFLAGS) -I$(HEADERS_DIR) -o $(TEST_BUILD_DIR)/pseudo_instr $(TEST_DIR)/pseudo_instr.c $(PSEUDO_INSTR_TEST_SOURCES:%=$(SRC_DIR)%)
@@ -25,5 +26,5 @@ tests:
 	$(CC) $(CFLAGS) -I$(HEADERS_DIR) -o $(TEST_BUILD_DIR)/idt $(TEST_DIR)/idt.c $(IDT_TEST_SOURCES:%=$(SRC_DIR)%)
 
 clean:
-	rm $(TEST_BUILD_DIR)*
-	rm $(BIN_BUILD_DIR)*
+	rm -rf $(TEST_BUILD_DIR)
+	rm -f $(BIN_BUILD_DIR)*
