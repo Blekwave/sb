@@ -89,6 +89,18 @@ void asmDestroySymTable(Map *sym_table){
     mapDestroy(sym_table, free);
 }
 
+void asmPrintSymTable(Map *sym_table){
+    MapIter i = mapBegin(sym_table);
+    printf("[Symbol table]\n"
+           "Label: address\n");
+    while (i.n){
+        const char *label = miKey(&i);
+        const int *addr = miData(&i);
+        printf("%s: %d\n", label, *addr);
+        mapNext(sym_table, &i);
+    }
+}
+
 static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table){
     if (t == op_t_reg){
         ad->ilc++;
@@ -142,7 +154,7 @@ int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table){
     return 0;
 }
 
-int asmAssemble(const char *src_addr, const char *dest_addr){
+int asmAssemble(const char *src_addr, const char *dest_addr, output_mode om){
     Map *idt = idtCreate();
     FILE *in = fopen(src_addr, "r");
 
@@ -153,6 +165,9 @@ int asmAssemble(const char *src_addr, const char *dest_addr){
     FILE *out = fopen(dest_addr, "w");
 
     int status = asmReplaceAndSave(in, out, idt, sym_table);
+
+    if (om == om_verbose)
+        asmPrintSymTable(sym_table);
 
     fclose(in);
     fclose(out);
