@@ -1,3 +1,8 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Teste 1 - Fibonacci                                            ;
+; Dado um índice, retorna o número de Fibonacci correspondente   ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
         LOAD R14 ONE; R14 é sempre 1
         COPY R1 R14
         READ R15

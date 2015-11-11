@@ -1,3 +1,8 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Teste 3 - Exponenciação (texp.i)                               ;
+; Realiza exponenciação de uma base a um expoente positivo.      ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 READ R0; Base
 READ R1; Expoente
 LOAD R2 ONE; Resultado

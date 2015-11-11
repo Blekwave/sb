@@ -1,3 +1,9 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Teste 2 - Divisão inteira (tdiv.i)                             ;
+; Realiza a divisão inteira de dois números, retornando quoci-   ;
+; ente e resto.                                                  ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 LOAD R4 ONE; Incrementa ou decrementa quociente
 READ R0
 READ R1
