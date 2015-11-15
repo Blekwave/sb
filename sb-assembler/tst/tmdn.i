@@ -39,12 +39,33 @@ ONE:                    WORD 1
 ARR_POS:                WORD 500
 ARR_SIZE:               WORD 7
 MEDIAN_INDEX:           WORD 3
-LOADR_PC_OFFSET:        WORD 75
-STORER_PC_OFFSET:       WORD 96
+LOADR_PC_OFFSET:        WORD 75; Equivale a LOADR_POS
+STORER_PC_OFFSET:       WORD 96; Equivale a STORER_POS
 
-                        ; Subrotinas para acesso à memória com endereço nos registradores
-                        ; R14 - Endereço de leitura/escrita
-                        ; R15 - Valor lido/a ser escrito
+; [Explicações e funcionamento das subrotinas LOADR e STORER]
+; A máquina virtual proposta não possui nenhuma instrução nativa que permita o
+; endereçamento indireto de memória através de registradores. Isso limita o pro-
+; gramador ao acesso apenas de endereços hard-coded no programa, e impede que
+; seja possível, por exemplo, acessar um vetor por um índice. Essa limitação in-
+; viabiliza um número imenso de algoritmos. De maneira mais geral (mas não pro-
+; vada formalmente), é intuitivo pensar que, limitada às formas de endereçamento
+; padrão definidas no conjunto de instruções, essa máquina não consegue ser Tu-
+; ring-completa.
+
+; Felizmente, existe uma maneira de simular esse comportamento, através de uso
+; criativo da pseudo-instrução WORD e das labels. A ideia geral é editar o có-
+; digo do próprio programa com a instrução STORE, trocando o endereço imediato
+; de outra instrução LOAD ou STORE em tempo de execução. No entanto, como labels
+; se localizam no início das linhas, definir uma label para um operando de uma
+; instrução definida regularmente é impossível. Para isso, foi necessário defi-
+; nir LOAD e STORE com três WORDs, correspondentes ao operador, ao primeiro ope-
+; rando (registrador de entrada/saída) e ao segundo operando, que deve ser modi-
+; ficado.
+
+; Subrotinas para acesso à memória com endereço nos registradores
+; R14 - Endereço de leitura/escrita
+; R15 - Valor lido/a ser escrito
+
 LOADR:                  PUSH R13
                         PUSH R14
                         LOAD R13 LOADR_PC_OFFSET
@@ -69,20 +90,20 @@ STORER_POS:             WORD 0; Endereço onde o dado será escrito
                         POP R13
                         RET
 
-                        ; Ordena um vetor na memória
-                        ; R12 - Posição de início do vetor
-                        ; R13 - Posição seguinte à última posição do vetor
-SORT:                   PUSH R2
+; Ordena um vetor na memória em ordem decrescente
+; R12 - Posição de início do vetor
+; R13 - Posição seguinte à última posição do vetor
+SORT:                   PUSH R2; Salva os registradores modificados
                         PUSH R3
                         PUSH R4
                         PUSH R5
                         PUSH R14
                         PUSH R15
 
-                        COPY R2 R12
-                        COPY R3 R12
+                        COPY R2 R12; Itera pelo loop externo
+                        COPY R3 R12; Itera pelo loop interno
 
-SORT_OUTER_LOOP:        COPY R4 R13
+SORT_OUTER_LOOP:        COPY R4 R13; 
                         SUB R4 R2
                         ADD R4 R1
                         JZ SORT_OUTER_LOOP_END
@@ -95,6 +116,7 @@ SORT_INNER_LOOP:        COPY R4 R13
                         ADD R4 R1
                         JZ SORT_INNER_LOOP_END
 
+                        ; Carrega V[i] e V[j]
                         COPY R14 R3
                         CALL LOADR
                         COPY R5 R15
@@ -102,8 +124,8 @@ SORT_INNER_LOOP:        COPY R4 R13
                         CALL LOADR
                         COPY R4 R15
 
-                        SUB R4 R5
-                        JNN SWAP_END
+                        SUB R4 R5; Calcula V[i] - V[j]
+                        JNN SWAP_END; Troca elementos se V[i] < V[j]
                         COPY R14 R3
                         CALL STORER
 
