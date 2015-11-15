@@ -40,7 +40,7 @@ BOTHN:  NEG R8
 FSTN:   COPY R9 R9
         JN BOTHN
 
-MULLP:  JZ MUL_END
+MULLP:  JZ MULE
         ADD R10 R8
         SUB R9 R3
         JMP MULLP
