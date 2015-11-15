@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>  // memcpy
 
+// Function documentation is available at the header file
+
 BNode *bNodeCreate(void *key, size_t ksz, void *data, size_t dsz,
                      BNode *next){
     BNode *n = malloc(sizeof(BNode));

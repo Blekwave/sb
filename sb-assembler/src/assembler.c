@@ -18,6 +18,13 @@ typedef struct {
     char *op2;
 } Line;
 
+/**
+ * Parses a line of assembly code, splitting it in its components: label, ope-
+ * rator and operands.
+ * @param in  Line of assembly code.
+ * @param out Address to a Line struct, to which the line's components will be
+ *            saved.
+ */
 static void parseLine(char *in, Line *out){
     *out = (Line){NULL, NULL, NULL, NULL};
 
@@ -51,6 +58,15 @@ static void parseLine(char *in, Line *out){
     out->op2 = pch;
 }
 
+/**
+ * Performs the first pass of the assembly, reading the code and creating a sym-
+ * bol table, containing each label in the code.
+ * @param  in  Pointer to the file containing the code. It should already have
+ *             been opened in "r" mode and should point to the beginning of the
+ *             file.
+ * @param  idt Instruction Data Table created by idtCreate (idt.h)
+ * @return     Address to the newly created symbol table.
+ */
 Map *asmBuildSymTable(FILE *in, Map *idt){
     Map *sym_table = mapCreate(sizeof(int), NUM_BUCKETS,
         (unsigned (*)(void *))djb2, // Hash function
@@ -85,10 +101,19 @@ Map *asmBuildSymTable(FILE *in, Map *idt){
     return sym_table;
 }
 
+/**
+ * Deletes the symbol table and frees memory allocated for it.
+ * @param sym_table Address to the symbol table
+ */
 void asmDestroySymTable(Map *sym_table){
     mapDestroy(sym_table, free);
 }
 
+/**
+ * Iterates through the symbol table and prints its elements in no particular
+ * order.
+ * @param sym_table Address to the symbol table
+ */
 void asmPrintSymTable(Map *sym_table){
     MapIter i = mapBegin(sym_table);
     printf("[Symbol table]\n"
@@ -101,6 +126,15 @@ void asmPrintSymTable(Map *sym_table){
     }
 }
 
+/**
+ * Prints the machine code for a given operand. Behaves differently whether it
+ * is a register or an immediate value.
+ * @param op        Operand to be printed.
+ * @param t         Type of the operand.
+ * @param ad        Address to an AsmData structure, which contains information
+ *                  about the assembly process (including the ILC).
+ * @param sym_table Symbol table.
+ */
 static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table){
     if (t == op_t_reg){
         ad->ilc++;
@@ -116,6 +150,19 @@ static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table){
     }
 }
 
+/**
+ * Performs the second pass of the assembly procedure, which actually assembles
+ * the instructions and operands in the program.
+ * @param  in        Pointer to the file containing the code. It should already
+ *                   have been opened in "r" mode and should point to the begin-
+ *                   ning of the file.
+ * @param  out       Pointer to the output file, where the corresponding machine
+ *                   code should be saved. It should have already been opened in
+ *                   "w" mode, and should point to the beginning of the file.
+ * @param  idt       Instruction data table, created by idtCreate ("idt.h").
+ * @param  sym_table Symbol table obtained in the first pass.
+ * @return           0 if everything went alright.
+ */
 int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table){
     Line l;
     Instr ins;
@@ -154,6 +201,14 @@ int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table){
     return 0;
 }
 
+/**
+ * Assembles an existing assembly language program.
+ * @param  src_addr  Path to the assembly file.
+ * @param  dest_addr Path to the newly created machine code file.
+ * @param  om        Output mode: simple or verbose (prints symbol table)
+ * @return           Whether or not the assembly was successful. (Returns 0 if
+ *                   everything went okay.)
+ */
 int asmAssemble(const char *src_addr, const char *dest_addr, output_mode om){
     Map *idt = idtCreate();
     FILE *in = fopen(src_addr, "r");

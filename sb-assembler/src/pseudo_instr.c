@@ -1,5 +1,7 @@
 #include "pseudo_instr.h"
 
+// Function documentation is available at the header file
+
 int psinWord(AsmData *ad, char *val){
     fprintf(ad->out, "%s\n", val);
     return 0;

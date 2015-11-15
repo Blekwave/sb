@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+// Function documentation is available at the header file
+
 #define IDT_NUM_BUCKETS 32
 
 
