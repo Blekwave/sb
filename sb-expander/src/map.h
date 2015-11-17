@@ -41,7 +41,8 @@ Map *mapCreate(size_t dsz, int len, unsigned int (*hash)(void *key),
 void mapDestroy(Map *m, void (*freeData)(void *data));
 
 /**
- * Inserts an element in a map for a given key.
+ * Inserts an element in a map for a given key, replaces data if such key al-
+ * ready exists.
  * @param m    Map in which the element should be inserted.
  * @param key  Key in which the element should be inserted.
  * @param ksz  Size of the key, in bytes.

@@ -5,10 +5,10 @@ typedef struct MacroTable;
 
 MacroTable* mtCreate();
 
-void mtDelete(MacroTable *mt);
+void mtDestroy(MacroTable *mt);
 
-void mtInsert(MacroTable *mt, char *name, char *macro);
+void mtInsert(MacroTable *mt, char *name, char *macro, char *param);
 
-void mtGet(MacroTable *mt, char *name, char *out);
+int mtEval(MacroTable *mt, char *name, char *param, char *out);
 
 #endif
