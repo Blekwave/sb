@@ -32,5 +32,6 @@
 *.dSYM/
 
 build/
+bin/
 *.sublime-project
 *.sublime-workspace
