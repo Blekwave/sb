@@ -81,7 +81,7 @@ em que:
 
 \section{Testes realizados}
 
-Na pasta de testes presente no pacote deste trabalho, há diversos programas que foram utilizados para garantir o bom funcionamento do montador, cobrindo todas as instruções disponibilizadas pela especificação da máquina virtual. Vários deles foram implementados de acordo com o pedido na especificação do trabalho. Segue abaixo uma breve descrição do comportamento de cada programa:
+Na pasta de testes presente no pacote deste trabalho, há diversos programas que foram utilizados para garantir o bom funcionamento do montador, cobrindo todas as instruções disponibilizadas pela especificação da máquina virtual. Vários deles foram implementados de acordo com o pedido na especificação do trabalho. Imagens da execução dos testes estão disponíveis no apêndice desta documentação. Segue abaixo uma breve descrição do comportamento de cada programa:
 
 \begin{itemize}
     \item \verb|tspec.i|: teste disponibilizado na especificação do trabalho. Determina o maior número entre dois valores informados.
@@ -96,7 +96,13 @@ Na pasta de testes presente no pacote deste trabalho, há diversos programas que
 
 Além das entradas de teste elaboradas, foram criados também diversos \emph{unit tests}, com o propósito de testar a funcionalidade de cada módulo do montador. Esses testes estão disponíveis na pasta \verb|unit-tests/|, dentro da pasta de testes, e podem ser compilados com o comando \verb|make tests|, que utiliza uma funcionalidade adicional da \emph{makefile} providenciada. Após a compilação, eles estarão localizados na pasta \verb|bin/test-bin/|.
 
-\subsection{Imagens de execução dos testes}
+\section{Conclusão}
+
+Neste trabalho, foi implementado um montador para uma máquina virtual, definido de acordo com a especificação fornecida. O comportamento e a implementação do montador foram discutidos no contexto dos testes realizados e da interação com o emulador criado no trabalho prático anterior, de forma a garantir que as instruções e pseudo-instruções funcionam como previsto.
+
+\appendix
+
+\section{Imagens de execução dos testes}
 
 \begin{figure}[h]
     \includegraphics[scale=0.7]{imagens/tspec_console.png}
@@ -123,9 +129,5 @@ Além das entradas de teste elaboradas, foram criados também diversos \emph{uni
 \end{figure}
 
 \FloatBarrier
-
-\section{Conclusão}
-
-Neste trabalho, foi implementado um montador para uma máquina virtual, definido de acordo com a especificação fornecida. O comportamento e a implementação do montador foram discutidos no contexto dos testes realizados e da interação com o emulador criado no trabalho prático anterior, de forma a garantir que as instruções e pseudo-instruções funcionam como previsto.
 
 \end{document}
