@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Function documentation is available at the header file
+
 Map *mapCreate(size_t dsz, int len, unsigned int (*hash)(void *key), 
               int (*keyComp)(void *a, void *b)){
     Map *m = malloc(sizeof(Map));

@@ -3,7 +3,6 @@
 
 int main(int argc, char const *argv[])
 {
-    // TODO: Map iteration (verbose prints the symbols table)
     
     const char *src_addr = argv[1];
     const char *dest_addr = argv[2];

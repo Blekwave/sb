@@ -1,5 +1,7 @@
 #include "hash_aux.h"
 
+// Function documentation is available at the header file
+
 unsigned int djb2(unsigned char *str){
     unsigned int hash = 5381;
     int c;
