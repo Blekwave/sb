@@ -34,3 +34,4 @@
 build/
 *.sublime-project
 *.sublime-workspace
+bin/
