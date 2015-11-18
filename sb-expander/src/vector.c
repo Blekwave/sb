@@ -25,6 +25,12 @@ void vDestroy(Vector *v){
     free(v);
 }
 
+/**
+ * Function used to dynamically extend the Vector exponentially, according to a
+ * (defined in the header) reallocation factor. This function is called whenever
+ * the Vector is full and needs to add another element to itself.
+ * @param v Vector to be expanded.
+ */
 static void vExtend(Vector *v){
     v->arr_len = (int)((float)VECTOR_REALLOCATION_FACTOR * v->arr_len);
     v->arr = realloc(v->arr, v->arr_len * v->dsz);
@@ -95,6 +101,9 @@ VIter vEnd(Vector *v){
 }
 
 void vNext(Vector *v, VIter *i){
-    // I actually despise legibility
-    i->data = ++i->index < v->len ? i->data + v->dsz : NULL;
+    i->index++;
+    if (i->index < v->len)
+        i->data += v->dsz;
+    else
+        i->data = NULL;
 }
