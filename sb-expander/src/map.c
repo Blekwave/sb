@@ -43,7 +43,8 @@ int mapGet(Map *m, void *key, void *out){
     Bucket *b = m->bs[m->hash(key) % m->len];
     BNode *n = bFind(b, key, m->keyComp);
     if (n != NULL){
-        memcpy(out, n->data, m->dsz);
+        if (out)
+            memcpy(out, n->data, m->dsz);
         return 0;
     }
     return 1; // No such key
