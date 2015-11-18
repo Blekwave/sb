@@ -44,6 +44,7 @@ void vReplace(Vector *v, int index, void *data){
         exit(1);
     }
 
+    v->freeData(v->arr + index * v->dsz);
     memcpy(v->arr + index * v->dsz, data, v->dsz);
 }
 
