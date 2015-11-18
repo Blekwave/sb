@@ -9,6 +9,6 @@ void mtDestroy(MacroTable *mt);
 
 void mtInsert(MacroTable *mt, char *name, char *macro, char *param);
 
-int mtEval(MacroTable *mt, char *name, char *param, char *out);
+int mtEval(MacroTable *mt, char *name, char *param, char **out);
 
 #endif

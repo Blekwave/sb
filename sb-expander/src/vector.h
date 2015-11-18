@@ -19,7 +19,14 @@ typedef struct {
     int index;
 } VIter;
 
-
+/**
+ * Creates a new empty Vector for data of a given size. Optionally, a freeData
+ * function can be defined to delete elements whenever they're replaced or re-
+ * moved.
+ * @param dsz      Size of each element, in bytes.
+ * @param freeData Auxiliary function to which the address of the freed data
+ *                 will be passed. (stdlib's free is a valid parameter)
+ */
 Vector *vCreate(size_t dsz, void(*freeData)(void *));
 
 /**
@@ -75,6 +82,13 @@ int vLen(Vector *v);
  * @return   Address to its data, which is of size dsz.
  */
 void *viData(VIter *i);
+
+/**
+ * Return the index of an iterator in its Vector.
+ * @param  i Iterator
+ * @return   Index of the element it points to.
+ */
+int viIndex(VIter *i);
 
 /**
  * Returns an iterator to the first element in a Vector.

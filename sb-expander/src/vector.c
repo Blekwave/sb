@@ -87,6 +87,10 @@ void *viData(VIter *i){
     return i->data;
 }
 
+int viIndex(VIter *i){
+    return i->index;
+}
+
 VIter vBegin(Vector *v){
     return (VIter){
         .data = v->len ? v->arr : NULL,
