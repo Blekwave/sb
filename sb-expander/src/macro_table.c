@@ -317,8 +317,10 @@ static void macroReplace(Macro *macro, char *param, char **out){
 int mtEval(MacroTable *mt, char *name, char *param, char **out){
     Macro macro;
     int get_status = mapGet(mt->m, name, &macro);
-    if (get_status)
+    if (get_status){
+        *out = NULL;
         return get_status;
+    }
 
     if (!macro.ready){ // Macros only need to be pre-processed once.
         macroPreProcess(mt, &macro);
