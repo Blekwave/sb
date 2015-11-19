@@ -47,6 +47,7 @@ static char *vector_test(){
     mu_assert("Iterator has wrong value (2)", *c == 13);        
 
     vDestroy(v);
+    v = NULL;
     return 0;
 }
 

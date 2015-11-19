@@ -23,11 +23,26 @@ static char *macro_table_test(){
     mtEval(mt, "MACRO_A", NULL, &a_out);
 
     printf("%s\n%s\n", a_out, a_expected);
-    mu_assert("Expected output differs from actual output", !strcmp(a_out, a_expected));
+    mu_assert("A's expected output differs from actual output", !strcmp(a_out, a_expected));
+
+    char macro_b[] = "L423: ADD PAR4M R12\n"
+                    "LOAD PAR4M LABEL\n";
+
+    char b_expected[] = "L423__MACRO0000000000: ADD R2 R12\n"
+                        "LOAD R2 LABEL\n";
+    mtInsert(mt, "MACRO_B", &macro_b[0], "PAR4M");
+
+    char *b_out;
+
+    mtEval(mt, "MACRO_B", "R2", &b_out);
+
+    printf("%s\n%s\n", b_out, b_expected);
+    mu_assert("B's expected output differs from actual output", !strcmp(b_out, b_expected));
+
+    free(a_out);
+    free(b_out);
 
     mtDestroy(mt);
-    
-    // mu_assert("Iterator has wrong value (2)", *c == 13);        
 
     return 0;
 }
