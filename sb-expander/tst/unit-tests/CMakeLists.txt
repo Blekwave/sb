@@ -13,9 +13,13 @@ target_link_libraries(bucket_test bucket)
 create_test(bucket_test)
 
 add_executable(map_test map.c)
-target_link_libraries(map_test map bucket)
+target_link_libraries(map_test map)
 create_test(map_test)
 
 add_executable(vector_test vector.c)
 target_link_libraries(vector_test vector)
 create_test(vector_test)
+
+add_executable(macro_table_test macro_table.c)
+target_link_libraries(macro_table_test macro_table)
+create_test(macro_table_test)

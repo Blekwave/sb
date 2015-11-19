@@ -22,6 +22,7 @@ static char *macro_table_test(){
 
     mtEval(mt, "MACRO_A", NULL, &a_out);
 
+    printf("%s\n%s\n", a_out, a_expected);
     mu_assert("Expected output differs from actual output", !strcmp(a_out, a_expected));
 
     mtDestroy(mt);
@@ -40,6 +41,7 @@ int main(){
     char *result = run_tests();
     if (result){
         printf("%s\n", result);
+        return 1;
     } else {
         printf("All tests passed successfully.\n");
     }

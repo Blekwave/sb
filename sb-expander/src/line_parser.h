@@ -15,6 +15,6 @@ typedef struct {
  * @param out Address to a Line struct, to which the line's components will be
  *            saved.
  */
-static void parseLine(char *in, Line *out);
+void parseLine(char *in, Line *out);
 
 #endif

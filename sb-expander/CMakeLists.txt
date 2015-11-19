@@ -5,7 +5,7 @@ project("sb-expander")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-set(PROJECT_C_FLAGS "-std=c11 -Wall -Wextra -Werror")
+set(PROJECT_C_FLAGS "-std=c11 -Wall -Wextra -Werror -g -pg")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${PROJECT_C_FLAGS}")
 

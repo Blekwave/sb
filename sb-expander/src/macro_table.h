@@ -1,7 +1,11 @@
 #ifndef MACRO_TABLE_H
 #define MACRO_TABLE_H
 
-typedef struct MacroTable;
+#include "map.h"
+
+typedef struct {
+    Map *m;
+} MacroTable;
 
 /**
  * Creates a new MacroTable

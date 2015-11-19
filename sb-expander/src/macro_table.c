@@ -7,15 +7,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h> // sprintf
 
 #define MT_LEN 256
 #define MAX_LINE_LEN 4096
 #define MACRO_LABEL_MAP_LEN 8
 #define LABEL_SUFFIX_LEN 17
-
-typedef struct {
-    Map *m;
-} MacroTable;
 
 typedef struct {
     char *str;
@@ -39,13 +36,13 @@ static void macroDestroy(Macro *macro){
 
 MacroTable* mtCreate(){
     MacroTable *mt = malloc(sizeof(MacroTable));
-    mt->m = mapCreate(sizeof(Macro), MT_LEN, ((unsigned int)(*)(void *))djb2,
-                      ((int)(*)(void *, void *))strcmp);
+    mt->m = mapCreate(sizeof(Macro), MT_LEN, (unsigned int(*)(void *))djb2,
+                      (int(*)(void *, void *))strcmp);
     return mt;
 }
 
 void mtDestroy(MacroTable *mt){
-    mapDestroy(mt->m, macroDestroy);
+    mapDestroy(mt->m, (void(*)(void *))macroDestroy);
     free(mt);
 }
 
@@ -53,28 +50,6 @@ static char *strCopyToNew(char *str){
     char *new = malloc(strlen(str) + 1);
     strcpy(new, str);
     return new;
-}
-
-static char *vectorToString(Vector *v, char *sep){
-    // First pass: get length of the output string
-    int len = 1; // \0 at the end
-    int sep_len = strlen(sep);
-    for (VIter it = vBegin(v); vIndex(it) != vLen(v); vNext(v, &it)){
-        len += strlen(vData(it)) + sep_len;
-    }
-
-    // Second pass: actually make the string
-    char *out = malloc(len * sizeof(char));
-    char *cur_out = out;
-    for (VIter it = vBegin(v); vIndex(it) != vLen(v); vNext(v, &it)){
-        const char *it_str = vData(it);
-        strcpy(cur_out, it_str);
-        cur_out += strlen(it_str);
-        strcpy(cur_out, sep);
-        cur_out += sep_len;
-    }
-
-    return out;
 }
 
 void mtInsert(MacroTable *mt, char *name, char *macro, char *param){
@@ -99,8 +74,8 @@ static void macroPreProcess(MacroTable *mt, Macro *macro){
     Vector *v = vCreate(sizeof(char *), free);
 
     macro->labels = mapCreate(0, MACRO_LABEL_MAP_LEN,
-                              ((unsigned int)(*)(void *))djb2,
-                              ((int)(*)(void *, void *))strcmp);
+                              (unsigned int(*)(void *))djb2,
+                              (int(*)(void *, void *))strcmp);
 
     char line_buffer[MAX_LINE_LEN];
     Line l;
@@ -160,9 +135,9 @@ static int macroVectorLen(Vector *v, Map *labels, char *orig_param,
 
     int out_len = 1; // \0 at the end
 
-    for (VIter it = vBegin(v); vIndex(it) != vLen(v); vNext(v, &it)){
-        strcpy(line_buffer, vData(it));
-        parseLine(line_buffer, &v);
+    for (VIter it = vBegin(v); viIndex(&it) != vLen(v); vNext(v, &it)){
+        strcpy(line_buffer, viData(&it));
+        parseLine(line_buffer, &l);
 
         if (l.label){
             // Checks if the label corresponds to the parameter
@@ -227,11 +202,14 @@ static void macroReplace(Macro *macro, char *param, char **out){
     char label_suffix[LABEL_SUFFIX_LEN + 1]; // \0
     sprintf(label_suffix, "__MACRO%010d", macro->calls++);
 
-    // Computes the output string's length.
-    int out_len = macroVectorLen(macro->vector, macro->labels, macro->param,
-                                 param);
+    // Aliases for readability
+    Vector *v = macro->vector;
+    Map *labels = macro->labels;
 
-    int param_len = strlen(new_param);
+    // Computes the output string's length.
+    int out_len = macroVectorLen(v, labels, macro->param, param);
+
+    int param_len = param ? strlen(param) : 0;
 
     char *out_str = malloc(out_len * sizeof(char));
 
@@ -242,9 +220,9 @@ static void macroReplace(Macro *macro, char *param, char **out){
     Line l;
     char line_buffer[MAX_LINE_LEN];
 
-    for (VIter it = vBegin(v); vIndex(it) != vLen(v); vNext(v, &it)){
-        strcpy(line_buffer, vData(it));
-        parseLine(line_buffer, &v);
+    for (VIter it = vBegin(v); viIndex(&it) != vLen(v); vNext(v, &it)){
+        strcpy(line_buffer, viData(&it));
+        parseLine(line_buffer, &l);
 
         if (l.label){
             if (macro->param && strcmp(l.label, macro->param) == 0){

@@ -1,7 +1,7 @@
 #include "line_parser.h"
 #include <string.h>
 
-static void parseLine(char *in, Line *out){
+void parseLine(char *in, Line *out){
     *out = (Line){NULL, NULL, NULL, NULL};
 
     // Ignores comments by cutting the string off at the comment delimiter
