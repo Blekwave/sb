@@ -2,11 +2,11 @@
 #include "vector.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 int tests_run = 0;
 
 static char *vector_test(){
-    
     Vector *v = vCreate(sizeof(int), NULL);
     mu_assert("v is null", v);
 
@@ -37,22 +37,54 @@ static char *vector_test(){
 
     VIter it = vBegin(v);
     int *c = viData(&it);
-    mu_assert("Iterator has wrong value (1)", *c == 13);    
+    mu_assert("Iterator has wrong value (1)", *c == 13);
 
     for (int i = 0; i < 10; i++){
         vNext(v, &it);
         c = viData(&it);
     }
 
-    mu_assert("Iterator has wrong value (2)", *c == 13);        
+    mu_assert("Iterator has wrong value (2)", *c == 13);
 
     vDestroy(v);
     v = NULL;
     return 0;
 }
 
+char *strToCopy(char *src){
+    char *new = malloc(strlen(src) + 1);
+    strcpy(new, src);
+    return new;
+}
+
+static char *vector_strings_test(){
+    Vector *v = vCreate(sizeof(char *), free);
+
+    char *strings[] = {
+        "Some text",
+        "here and there",
+        "won't hurt",
+        "anybody"
+    };
+
+    const int num_strings = 4;
+
+    for (int i = 0; i < num_strings; i++){
+        char *new_str = strToCopy(strings[i]);
+        vPush(v, &new_str);
+    }
+
+    for (VIter it = vBegin(v); viIndex(&it) < vLen(v); vNext(v, &it)){
+        fprintf(stderr, "%s\n", *(char **)viData(&it));
+    }
+
+    vDestroy(v);
+    return 0;
+}
+
 static char *run_tests(){
     mu_run_test(vector_test);
+    mu_run_test(vector_strings_test);
     return 0;
 }
 

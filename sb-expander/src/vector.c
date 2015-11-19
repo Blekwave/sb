@@ -17,7 +17,7 @@ Vector *vCreate(size_t dsz, void(*freeData)(void *)){
 
 void vDestroy(Vector *v){
     if (v->freeData){
-        for (unsigned i = 0; i < v->len * v->dsz; i += v->dsz){
+        for (int i = 0; i < v->len; i++){
             v->freeData(*(void **)(v->arr + i * v->dsz));
         }
     }
