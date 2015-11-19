@@ -59,6 +59,7 @@ int main(){
     char *result = run_tests();
     if (result){
         printf("%s\n", result);
+        return 1;
     } else {
         printf("All tests passed successfully.\n");
     }
