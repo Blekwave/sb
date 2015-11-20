@@ -12,8 +12,8 @@
 #define MAX_MACRO_NAME_LEN 256
 #define MAX_MACRO_PARAM_LEN 256
 
-const char begin_macro[] = "BEGINMACRO";
-const char end_macro[] = "ENDMACRO";
+const char * begin_macro = "BEGINMACRO";
+const char * end_macro = "ENDMACRO";
 
 static MacroTable *buildMacroTable(FILE *in){
     MacroTable *mt = mtCreate();
@@ -41,10 +41,10 @@ static MacroTable *buildMacroTable(FILE *in){
                 current_macro = NULL; // just in case
             } else {
                 char *line_copy = strCopyToNew(line_buffer);
-                vPush(current_macro, &line_buffer);
+                vPush(current_macro, &line_copy);
             }
         } else {
-            if (strcmp(l.instr, begin_macro) == 0){ // BEGINMACRO
+            if (l.instr && strcmp(l.instr, begin_macro) == 0){ // BEGINMACRO
                 inside_macro = true;
                 if (!l.label){
                     fprintf(stderr, "ERROR: Nameless macro definition.\n");
@@ -52,7 +52,7 @@ static MacroTable *buildMacroTable(FILE *in){
                 }
                 strcpy(macro_name, l.label);
                 if (l.op1){
-                    strcpy(macro_name, l.op1);
+                    strcpy(macro_param, l.op1);
                     takes_param = true;
                 } else {
                     takes_param = false;
@@ -83,7 +83,7 @@ static void replaceAndOutput(FILE *in, FILE *out, MacroTable *mt){
                 inside_macro = false;
             }
         } else {
-            if (strcmp(l.instr, begin_macro) == 0){ // BEGINMACRO
+            if (l.instr && strcmp(l.instr, begin_macro) == 0){ // BEGINMACRO
                 inside_macro = true;
             } else {
                 char *macro_out;
@@ -92,10 +92,10 @@ static void replaceAndOutput(FILE *in, FILE *out, MacroTable *mt){
                     ret_val = mtEval(mt, l.instr, l.op1, &macro_out);
                 }
                 if (!ret_val){ // ret_val == 0 -> Instruction is a macro call
-                    fprintf(out, "%s\n", macro_out);
+                    fprintf(out, "%s", macro_out);
                     free(macro_out);
                 } else { // Just a regular instruction.
-                    fprintf(out, "%s\n", line_buffer);
+                    fprintf(out, "%s", line_buffer);
                 }
             }
         }
@@ -105,18 +105,15 @@ static void replaceAndOutput(FILE *in, FILE *out, MacroTable *mt){
 
 int expExpand(const char *src_addr, const char *dest_addr){
     FILE *in = fopen(src_addr, "r");
-
     MacroTable *mt = buildMacroTable(in);
-
     rewind(in);
 
     FILE *out = fopen(dest_addr, "w");
-
     replaceAndOutput(in, out, mt);
 
     fclose(out);
-
     mtDestroy(mt);
-
     fclose(in);
+
+    return 0;
 }
