@@ -34,7 +34,7 @@ static MacroTable *buildMacroTable(FILE *in){
         strcpy(mangled_buffer, line_buffer);
         parseLine(mangled_buffer, &l);
         if (inside_macro){
-            if (strcmp(l.instr, end_macro) == 0){ // ENDMACRO
+            if (l.instr && strcmp(l.instr, end_macro) == 0){ // ENDMACRO
                 mtInsert(mt, macro_name, current_macro,
                          takes_param ? macro_param : NULL);
                 inside_macro = false;
@@ -79,7 +79,7 @@ static void replaceAndOutput(FILE *in, FILE *out, MacroTable *mt){
         parseLine(mangled_buffer, &l);
 
         if (inside_macro){
-            if (strcmp(l.instr, end_macro) == 0){ // ENDMACRO
+            if (l.instr && strcmp(l.instr, end_macro) == 0){ // ENDMACRO
                 inside_macro = false;
             }
         } else {

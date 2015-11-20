@@ -45,7 +45,7 @@ void mtDestroy(MacroTable *mt){
 }
 
 void mtInsert(MacroTable *mt, char *name, Vector *macro, char *param){
-    mapInsert(mt->m, name, strlen(name), &(Macro){
+    mapInsert(mt->m, name, strlen(name) + 1, &(Macro){
         .vector = macro,
         .param = param ? strCopyToNew(param) : NULL,
         .calls = 0,
@@ -86,9 +86,9 @@ static void macroPreProcess(MacroTable *mt, Macro *macro){
         // In case it does, it evaluates the internal call and appends it to the
         // current macro's line vector.
         char *call_body;
-        int ret_val = mtEval(mt, l.instr, l.op1, &call_body);
 
-        if (ret_val == 0){ // Instruction was a macro call!
+        if (l.instr && mtEval(mt, l.instr, l.op1, &call_body) == 0){ 
+            // Instruction was a macro call!
             for (char *qch = strtok(call_body, "\n"); qch;
                 qch = strtok(NULL, "\n")){
                 char *line_copy = strCopyToNew(qch);
