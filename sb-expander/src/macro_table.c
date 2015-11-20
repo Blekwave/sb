@@ -1,5 +1,6 @@
 #include "hash_aux.h"
 #include "line_parser.h"
+#include "str_aux.h"
 #include "macro_table.h"
 #include "map.h"
 #include "vector.h"
@@ -15,7 +16,6 @@
 #define LABEL_SUFFIX_LEN 17
 
 typedef struct {
-    char *str;
     Vector *vector;
     char *param;
     int calls;
@@ -24,8 +24,6 @@ typedef struct {
 } Macro;
 
 static void macroDestroy(Macro *macro){
-    if (macro->str)
-        free(macro->str);
     if (macro->vector)
         vDestroy(macro->vector);
     free(macro->param);
@@ -46,16 +44,9 @@ void mtDestroy(MacroTable *mt){
     free(mt);
 }
 
-static char *strCopyToNew(char *str){
-    char *new = malloc(strlen(str) + 1);
-    strcpy(new, str);
-    return new;
-}
-
-void mtInsert(MacroTable *mt, char *name, char *macro, char *param){
+void mtInsert(MacroTable *mt, char *name, Vector *macro, char *param){
     mapInsert(mt->m, name, strlen(name), &(Macro){
-        .str = strCopyToNew(macro),
-        .vector = NULL,
+        .vector = macro,
         .param = param ? strCopyToNew(param) : NULL,
         .calls = 0,
         .ready = false,
@@ -77,18 +68,15 @@ static void macroPreProcess(MacroTable *mt, Macro *macro){
                               (unsigned int(*)(void *))djb2,
                               (int(*)(void *, void *))strcmp);
 
-    char line_buffer[MAX_LINE_LEN];
+    char mangled_buffer[MAX_LINE_LEN];
     Line l;
 
-    char *pch = macro->str;
-    char *next;
+    for (VIter it = vBegin(macro->vector); viIndex(&it) < vLen(macro->vector);
+        vNext(macro->vector, &it)){
 
-    while (*pch){
-        next = strchr(pch, '\n');
-        *next = '\0';
-
-        strcpy(line_buffer, pch);
-        parseLine(line_buffer, &l);
+        char *cur_line = *(char **)viData(&it);
+        strcpy(mangled_buffer, cur_line);
+        parseLine(mangled_buffer, &l);
 
         if (l.label){ // Saves all label definitions inside the macro
             mapInsert(macro->labels, l.label, strlen(l.label), NULL);
@@ -110,16 +98,12 @@ static void macroPreProcess(MacroTable *mt, Macro *macro){
         } else if (l.label || l.instr) { // Doesn't push empty lines
             // Label-only lines are okay, though (it's undefined behaviour which
             // I chose to support.)
-            char *line_copy = strCopyToNew(pch);
+            char *line_copy = strCopyToNew(cur_line);
             vPush(v, &line_copy);
         }
-
-        pch = next + 1;
     }
 
-    free(macro->str);
-    macro->str = NULL;
-
+    vDestroy(macro->vector);
     macro->vector = v;
 
     // Macros only need to be pre-processed once.

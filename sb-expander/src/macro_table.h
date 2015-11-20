@@ -2,6 +2,7 @@
 #define MACRO_TABLE_H
 
 #include "map.h"
+#include "vector.h"
 
 typedef struct {
     Map *m;
@@ -28,7 +29,7 @@ void mtDestroy(MacroTable *mt);
  *              instruction)
  * @param param Name of its parameter (or NULL, if it takes no parameters)
  */
-void mtInsert(MacroTable *mt, char *name, char *macro, char *param);
+void mtInsert(MacroTable *mt, char *name, Vector *macro, char *param);
 
 /**
  * Evaluates a macro in the MacroTable, given its name and the value its para-

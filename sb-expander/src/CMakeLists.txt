@@ -11,7 +11,9 @@ add_library(hash_aux hash_aux.c)
 
 add_library(line_parser line_parser.c)
 
+add_library(str_aux str_aux.c)
+
 add_library(macro_table macro_table.c)
-target_link_libraries(macro_table hash_aux line_parser map vector)
+target_link_libraries(macro_table hash_aux line_parser map vector str_aux)
 
 add_executable(mock mock.c)
