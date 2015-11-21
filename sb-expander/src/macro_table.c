@@ -220,8 +220,8 @@ static void macroReplace(Macro *macro, char *param, char **out){
 
     char *out_str = malloc(out_len * sizeof(char));
 
-    // out_str's original address is saved beforehands because out_str is going
-    // to be manipulated to print the macro.
+    // out_str's original address is saved beforehand because out_str is going
+    // to be manipulated in order to print the macro.
     *out = out_str;
 
     Line l;
