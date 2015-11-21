@@ -15,6 +15,14 @@
 const char * begin_macro = "BEGINMACRO";
 const char * end_macro = "ENDMACRO";
 
+/**
+ * Performs the first pass of the expansion procedure, creating a new MacroTable
+ * and populating it with the macros contained in the source file.
+ * @param  in File pointer to be read, already opened in read-only mode. Will be
+ *            located at the end of the file after the procedure, should be
+ *            closed or rewound afterwards.
+ * @return    Address to the new Macro Table.
+ */
 static MacroTable *buildMacroTable(FILE *in){
     MacroTable *mt = mtCreate();
 
@@ -65,6 +73,17 @@ static MacroTable *buildMacroTable(FILE *in){
     return mt;
 }
 
+/**
+ * Performs the second pass of the expansion procedure, actually printing the
+ * expanded code.
+ * @param in  File pointer to be read, already opened in read-only mode. Will be
+ *            located at the end of the file after the procedure, should be
+ *            closed or rewound afterwards.
+ * @param out File pointer to be written, already opened in write-only mode.
+ *            Will be located at the end of the file after the procedure, should
+ *            be closed or rewound afterwards.
+ * @param mt  Address to the MacroTable generated in buildMacroTable.
+ */
 static void replaceAndOutput(FILE *in, FILE *out, MacroTable *mt){
     Line l;
     char line_buffer[MAX_LINE_LEN];

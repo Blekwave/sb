@@ -23,6 +23,10 @@ typedef struct {
     Map *labels;
 } Macro;
 
+/**
+ * Frees the memory allocated for a Macro
+ * @param macro address to a Macro
+ */
 static void macroDestroy(Macro *macro){
     if (macro->vector)
         vDestroy(macro->vector);
