@@ -114,7 +114,7 @@ static void replaceAndOutput(FILE *in, FILE *out, MacroTable *mt){
                     fprintf(out, "%s", macro_out);
                     free(macro_out);
                 } else { // Just a regular instruction.
-                    fprintf(out, "%s", line_buffer);
+                    printLine(out, l);
                 }
             }
         }

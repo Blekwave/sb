@@ -1,5 +1,6 @@
 #include "line_parser.h"
 #include <string.h>
+#include <stdio.h>
 
 void parseLine(char *in, Line *out){
     *out = (Line){NULL, NULL, NULL, NULL};
@@ -32,4 +33,20 @@ void parseLine(char *in, Line *out){
     if (!pch)
         return;
     out->op2 = pch;
+}
+
+int printLine(FILE *out, Line l){
+    if (!(l.label || l.instr))
+        return 1;
+    if (l.label)
+        fprintf(out, "%s:%s", l.label, l.instr ? " " : "");
+    if (l.instr)
+        fprintf(out, "%s", l.instr);
+    if (l.op1){
+        fprintf(out, " %s", l.op1);
+        if (l.op2)
+            fprintf(out, " %s", l.op2);
+    }
+    fprintf(out, "\n");
+    return 0;
 }
