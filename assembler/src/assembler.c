@@ -126,6 +126,21 @@ void asmPrintSymTable(Map *sym_table){
     }
 }
 
+const char * linker_sym_table_begin = "BEGINSM";
+const char * linker_sym_table_end = "ENDSM";
+
+void asmOutputSymTable(Map *sym_table, FILE *out){
+    MapIter i = mapBegin(sym_table);
+    fprintf(out, "%s\n", linker_sym_table_begin);
+    while (i.n){
+        const char *label = miKey(&i);
+        const int *addr = miData(&i);
+        fprintf(out, "%s %d\n", label, *addr);
+        mapNext(sym_table, &i);
+    }
+    fprintf(out, "%s\n", linker_sym_table_end);
+}
+
 /**
  * Prints the machine code for a given operand. Behaves differently whether it
  * is a register or an immediate value.
@@ -135,7 +150,8 @@ void asmPrintSymTable(Map *sym_table){
  *                  about the assembly process (including the ILC).
  * @param sym_table Symbol table.
  */
-static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table){
+static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table,
+                            output_mode om){
     if (t == op_t_reg){
         ad->ilc++;
         fprintf(ad->out, "%s\n", op + 1);
@@ -143,7 +159,7 @@ static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table){
         ad->ilc++;
         int pos;
         int get_status = mapGet(sym_table, op, &pos);
-        if (get_status == 0)
+        if (om != om_linker && get_status == 0)
             fprintf(ad->out, "%d\n", pos - ad->ilc);
         else
             fprintf(ad->out, "%s\n", op);
@@ -163,7 +179,8 @@ static void assembleOperand(char *op, op_type t, AsmData *ad, Map *sym_table){
  * @param  sym_table Symbol table obtained in the first pass.
  * @return           0 if everything went alright.
  */
-int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table){
+int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table,
+                      output_mode om){
     Line l;
     Instr ins;
     char buf[BUF_LEN + 1];
@@ -182,8 +199,8 @@ int asmReplaceAndSave(FILE *in, FILE *out, Map *idt, Map *sym_table){
         if (ins.type == ins_t_real){
             fprintf(out, "%d\n", ins.data.real.opcode);
             ad.ilc++;
-            assembleOperand(l.op1, ins.data.real.op1, &ad, sym_table);
-            assembleOperand(l.op2, ins.data.real.op2, &ad, sym_table);
+            assembleOperand(l.op1, ins.data.real.op1, &ad, sym_table, om);
+            assembleOperand(l.op2, ins.data.real.op2, &ad, sym_table, om);
         } else { // ins_t_pseudo
             int call_status;
             if (ins.data.pseudo.num_ops == 0){
@@ -219,10 +236,14 @@ int asmAssemble(const char *src_addr, const char *dest_addr, output_mode om){
 
     FILE *out = fopen(dest_addr, "w");
 
-    int status = asmReplaceAndSave(in, out, idt, sym_table);
-
     if (om == om_verbose)
         asmPrintSymTable(sym_table);
+    else if (om == om_linker)
+        asmOutputSymTable(sym_table, out);
+
+    int status = asmReplaceAndSave(in, out, idt, sym_table, om);
+
+    fprintf(out, "\n");
 
     fclose(in);
     fclose(out);
