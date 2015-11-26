@@ -8,6 +8,8 @@ typedef struct {
     char *op2;
 } Line;
 
+#include <stdio.h>
+
 /**
  * Parses a line of assembly code, splitting it in its components: label, ope-
  * rator and operands. Does NOT keep the original string intact.
@@ -16,5 +18,7 @@ typedef struct {
  *            saved.
  */
 void parseLine(char *in, Line *out);
+
+int printLine(FILE *out, Line l);
 
 #endif

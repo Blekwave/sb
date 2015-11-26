@@ -11,6 +11,8 @@ int main(int argc, char const *argv[])
 
     if (argc == 4 && argv[3][0] == 'v'){
         om = om_verbose;
+    } if (argc == 4 && argv[3][0] == 'l'){
+        om = om_linker;
     } else {
         om = om_simple;
     }

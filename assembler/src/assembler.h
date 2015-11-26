@@ -11,7 +11,8 @@
 
 typedef enum {
     om_simple,
-    om_verbose
+    om_verbose,
+    om_linker
 } output_mode;
 
 typedef struct {
