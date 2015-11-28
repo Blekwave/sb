@@ -21,7 +21,7 @@ static char *macro_table_test(){
 
     char *a_out;
 
-    mtEval(mt, "MACRO_A", NULL, &a_out);
+    mtEval(mt, "MACRO_A", NULL, NULL, &a_out);
 
     printf("%s\n%s\n", a_out, a_expected);
     mu_assert("A's expected output differs from actual output",
@@ -36,14 +36,28 @@ static char *macro_table_test(){
 
     char *b_out;
 
-    mtEval(mt, "MACRO_B", "R2", &b_out);
+    mtEval(mt, "MACRO_B", "R2", NULL, &b_out);
 
     printf("%s\n%s\n", b_out, b_expected);
     mu_assert("B's expected output differs from actual output",
               !strcmp(b_out, b_expected));
 
+    char b_expected_alt[] = "CALL_PARAM: ADD R2 R12\n"
+                            "LOAD R2 LABEL\n";
+    mtInsert(mt, "MACRO_B", strToVector(&macro_b[0], "\n"), "PAR4M");
+
+    char *b_out_alt;
+    char *b_call_param = "CALL_PARAM";
+
+    mtEval(mt, "MACRO_B", "R2", b_call_param, &b_out_alt);
+
+    printf("%s\n%s\n", b_out_alt, b_expected_alt);
+    mu_assert("B's expected output differs from actual output",
+              !strcmp(b_out_alt, b_expected_alt));
+
     free(a_out);
     free(b_out);
+    free(b_out_alt);
 
     mtDestroy(mt);
 

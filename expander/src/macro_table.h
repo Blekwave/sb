@@ -35,17 +35,21 @@ void mtInsert(MacroTable *mt, char *name, Vector *macro, char *param);
  * Evaluates a macro in the MacroTable, given its name and the value its para-
  * meter should assume (or NULL, if it takes no parameters). Returns a status 
  * value and the string corresponding to the evaluated macro.
- * @param  mt    MacroTable
- * @param  name  Name of the macro
- * @param  param Value its parameter should assume (or NULL)
- * @param  out   Pointer to a string, where the address to the string contai-
- *               ning the macro's evaluated text should be saved. This string
- *               is allocated dynamically, and must be freed afterwards if it
- *               gets generated correctly (nothing gets allocated if the call
- *               fails and returns 1, NULL is assigned to out in this case)
- * @return       0 if there is a macro with such a name in mt, 1 if there's no
- *               such macro.
+ * @param  mt         MacroTable
+ * @param  name       Name of the macro
+ * @param  param      Value its parameter should assume (or NULL)
+ * @param  call_label Label of the macro call, which is set to the first line
+ *                    of the macro's evaluated content.
+ * @param  out        Pointer to a string, where the address to the string con-
+ *                    taining the macro's evaluated text should be saved. This
+ *                    string is allocated dynamically, and must be freed after-
+ *                    wards if it gets generated correctly (nothing gets allo-
+ *                    cated if the call fails and returns 1, NULL is assigned
+ *                    to out in this case)
+ * @return            0 if there is a macro with such a name in mt, 1 if there
+ *                    is no such macro.
  */
-int mtEval(MacroTable *mt, char *name, char *param, char **out);
+int mtEval(MacroTable *mt, char *name, char *param, char *call_label,
+           char **out);
 
 #endif

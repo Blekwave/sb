@@ -91,11 +91,20 @@ static void macroPreProcess(MacroTable *mt, Macro *macro){
         // current macro's line vector.
         char *call_body;
 
-        if (l.instr && mtEval(mt, l.instr, l.op1, &call_body) == 0){ 
+        if (l.instr && mtEval(mt, l.instr, l.op1, l.label, &call_body) == 0){
             // Instruction was a macro call!
             for (char *qch = strtok(call_body, "\n"); qch;
                 qch = strtok(NULL, "\n")){
+
+                char mangled_buffer_call[MAX_LINE_LEN];
+                Line l_call;
                 char *line_copy = strCopyToNew(qch);
+                strcpy(mangled_buffer_call, qch);
+                parseLine(mangled_buffer_call, &l_call);
+                if (l_call.label){
+                    mapInsert(macro->labels, l_call.label,
+                              strlen(l_call.label), NULL);
+                }
                 vPush(v, &line_copy);
             }
             free(call_body);
@@ -114,6 +123,67 @@ static void macroPreProcess(MacroTable *mt, Macro *macro){
     macro->ready = true;
 }
 
+static int macroLineLen(Line *l, Map *labels, char *orig_param, char *new_param,
+                        char *first_line_label, char *call_label){
+    int out_len = 0;
+    int param_len = new_param ? strlen(new_param) : 0;
+    int call_label_len = call_label ? strlen(call_label) : 0;
+
+    if (l->label){
+        if (call_label && (!first_line_label ||
+                    strcmp(l->label, first_line_label) == 0)){
+            out_len += call_label_len + 2;
+            // The call label should be the same, inside and outside the macro
+            // There's no need, thus, to add a call suffix
+        }
+        // Checks if the label corresponds to the parameter
+        else if (orig_param && strcmp(l->label, orig_param) == 0){ // It does
+            out_len += param_len + 2; // +2: colon and space after label
+            if (mapGet(labels, new_param, NULL) == 0)
+                out_len += LABEL_SUFFIX_LEN;
+        } else { // Nope, just a regular label
+            out_len += strlen(l->label) + 2;
+            if (mapGet(labels, l->label, NULL) == 0)
+                out_len += LABEL_SUFFIX_LEN;
+        }
+    }
+
+    if (l->instr){
+        if (orig_param && strcmp(l->instr, orig_param) == 0){
+            out_len += param_len + 1; // +1: Space or line break
+        } else {
+            out_len += strlen(l->instr) + 1;
+        }
+    }
+
+    if (l->op1){
+        if (orig_param && strcmp(l->op1, orig_param) == 0){
+            out_len += param_len + 1;
+            if (mapGet(labels, new_param, NULL) == 0)
+                out_len += LABEL_SUFFIX_LEN;
+        } else {
+            out_len += strlen(l->op1) + 1;
+            // Operands can be labels, the operator can't.
+            if (mapGet(labels, l->op1, NULL) == 0)
+                out_len += LABEL_SUFFIX_LEN;
+        }
+
+        // There can't be a second operand without a first one
+        if (l->op2){
+            if (orig_param && strcmp(l->op2, orig_param) == 0){
+                out_len += param_len + 1;
+                if (mapGet(labels, new_param, NULL) == 0)
+                out_len += LABEL_SUFFIX_LEN;
+            } else {
+                out_len += strlen(l->op2) + 1;
+                if (mapGet(labels, l->op2, NULL) == 0)
+                    out_len += LABEL_SUFFIX_LEN;
+            }
+        }
+    }
+    return out_len;
+}
+
 /**
  * Iterates through a Macro's pre-processed line vector in order to compute the
  * length of its string form, taking into account label suffixing and parameter
@@ -125,64 +195,18 @@ static void macroPreProcess(MacroTable *mt, Macro *macro){
  * @return            Length of the string representation.
  */
 static int macroStringLen(Vector *v, Map *labels, char *orig_param,
-                          char *new_param){
+                          char *new_param, char *first_line_label,
+                          char *call_label){
     Line l;
     char line_buffer[MAX_LINE_LEN];
-
-    int param_len = new_param ? strlen(new_param) : 0;
 
     int out_len = 1; // \0 at the end
 
     for (VIter it = vBegin(v); viIndex(&it) != vLen(v); vNext(v, &it)){
         strcpy(line_buffer, *(char **)viData(&it));
         parseLine(line_buffer, &l);
-
-        if (l.label){
-            // Checks if the label corresponds to the parameter
-            if (orig_param && strcmp(l.label, orig_param) == 0){ // It does
-                out_len += param_len + 2; // +2: colon and space after label
-                if (mapGet(labels, new_param, NULL) == 0)
-                    out_len += LABEL_SUFFIX_LEN;
-            } else { // Nope, just a regular label
-                out_len += strlen(l.label) + 2;
-                if (mapGet(labels, l.label, NULL) == 0)
-                    out_len += LABEL_SUFFIX_LEN;
-            }
-        }
-
-        if (l.instr){
-            if (orig_param && strcmp(l.instr, orig_param) == 0){
-                out_len += param_len + 1; // +1: Space or line break
-            } else {
-                out_len += strlen(l.instr) + 1;
-            }
-        }
-
-        if (l.op1){
-            if (orig_param && strcmp(l.op1, orig_param) == 0){
-                out_len += param_len + 1;
-                if (mapGet(labels, new_param, NULL) == 0)
-                    out_len += LABEL_SUFFIX_LEN;
-            } else {
-                out_len += strlen(l.op1) + 1;
-                // Operands can be labels, the operator can't.
-                if (mapGet(labels, l.op1, NULL) == 0)
-                    out_len += LABEL_SUFFIX_LEN;
-            }
-
-            // There can't be a second operand without a first one
-            if (l.op2){
-                if (orig_param && strcmp(l.op2, orig_param) == 0){
-                    out_len += param_len + 1;
-                    if (mapGet(labels, new_param, NULL) == 0)
-                    out_len += LABEL_SUFFIX_LEN;
-                } else {
-                    out_len += strlen(l.op2) + 1;
-                    if (mapGet(labels, l.op2, NULL) == 0)
-                        out_len += LABEL_SUFFIX_LEN;
-                }
-            }
-        }
+        out_len += macroLineLen(&l, labels, orig_param, new_param,
+                                first_line_label, call_label);
     }
 
     return out_len;
@@ -198,7 +222,8 @@ static int macroStringLen(Vector *v, Map *labels, char *orig_param,
  * @param out   Pointer to a string, where the new string's address should be
  *              saved (and freed afterwards!)
  */
-static void macroReplace(Macro *macro, char *param, char **out){
+static void macroReplace(Macro *macro, char *param, char *call_label,
+                         char **out){
 
     // Label suffixes are necessary because labels can be declared inside macro
     // calls. If a macro were to be instantiated more than once, then, there
@@ -213,10 +238,21 @@ static void macroReplace(Macro *macro, char *param, char **out){
     Vector *v = macro->vector;
     Map *labels = macro->labels;
 
+    Line l;
+    char line_buffer[MAX_LINE_LEN];
+
+    // Gets the first line's label, if there is one.
+    VIter it = vBegin(v);
+    strcpy(line_buffer, *(char **)viData(&it));
+    parseLine(line_buffer, &l);
+    char *first_line_label = l.label ? strCopyToNew(l.label) : NULL;
+
     // Computes the output string's length.
-    int out_len = macroStringLen(v, labels, macro->param, param);
+    int out_len = macroStringLen(v, labels, macro->param, param,
+                                 first_line_label, call_label);
 
     int param_len = param ? strlen(param) : 0;
+    int call_label_len = call_label ? strlen(call_label) : 0;
 
     char *out_str = malloc(out_len * sizeof(char));
 
@@ -224,15 +260,16 @@ static void macroReplace(Macro *macro, char *param, char **out){
     // to be manipulated in order to print the macro.
     *out = out_str;
 
-    Line l;
-    char line_buffer[MAX_LINE_LEN];
 
-    for (VIter it = vBegin(v); viIndex(&it) != vLen(v); vNext(v, &it)){
+    while (viIndex(&it) != vLen(v)){
         strcpy(line_buffer, *(char **)viData(&it));
         parseLine(line_buffer, &l);
 
         if (l.label){
-            if (macro->param && strcmp(l.label, macro->param) == 0){
+            if (call_label && (!first_line_label || strcmp(l.label, first_line_label) == 0)){
+                strcpy(out_str, call_label);
+                out_str += call_label_len;
+            } else if (macro->param && strcmp(l.label, macro->param) == 0){
                 strcpy(out_str, param);
                 out_str += param_len;
                 if (mapGet(labels, param, NULL) == 0){
@@ -310,12 +347,14 @@ static void macroReplace(Macro *macro, char *param, char **out){
         }
 
         *out_str++ = '\n';
+        vNext(v, &it);
     }
 
     *out_str = '\0';
 }
 
-int mtEval(MacroTable *mt, char *name, char *param, char **out){
+int mtEval(MacroTable *mt, char *name, char *param, char *call_label,
+           char **out){
     Macro macro;
     int get_status = mapGet(mt->m, name, &macro);
     if (get_status){
@@ -327,7 +366,7 @@ int mtEval(MacroTable *mt, char *name, char *param, char **out){
         macroPreProcess(mt, &macro);
     }
 
-    macroReplace(&macro, param, out);
+    macroReplace(&macro, param, call_label, out);
 
     // Macro is overwritten regardless of whether it was preprocessed at this
     // call or not: its number of calls must be incremented either way.

@@ -108,7 +108,7 @@ static void replaceAndOutput(FILE *in, FILE *out, MacroTable *mt){
                 char *macro_out;
                 int ret_val = 1;
                 if (l.instr){
-                    ret_val = mtEval(mt, l.instr, l.op1, &macro_out);
+                    ret_val = mtEval(mt, l.instr, l.op1, l.label, &macro_out);
                 }
                 if (!ret_val){ // ret_val == 0 -> Instruction is a macro call
                     fprintf(out, "%s", macro_out);
