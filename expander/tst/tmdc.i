@@ -24,9 +24,7 @@ SWAP:       COPY R4 R2
             JNN EUC_LOOP
             SWAP_R2_R3
 
-EUC_LOOP:   COPY R0 R0; Chamadas de macro não podem vir após labels
-
-            REMAINDER R6
+EUC_LOOP:   REMAINDER R6
             JZ END
             COPY R2 R3
             COPY R3 R6

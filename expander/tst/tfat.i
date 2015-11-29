@@ -57,7 +57,8 @@ MULE:   POP R15
 
         ENDMACRO
 
-HALT
+        HALT
 
-ONE: WORD 1
+ONE:    WORD 1
+        END
 
