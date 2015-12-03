@@ -2,6 +2,7 @@
 #define STR_AUX_H
 
 #include "vector.h"
+#include <stdio.h>
 
 /**
  * Copies a string to a newly allocated string.
@@ -20,5 +21,7 @@ char *strCopyToNew(char *str);
  * @return        Address of the new Vector. Must be destroyed.
  */
 Vector *strToVector(char *str, char *delims);
+
+char *fgetsNoNewline(char *str, int num, FILE *stream);
 
 #endif

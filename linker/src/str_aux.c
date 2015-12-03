@@ -1,6 +1,7 @@
 #include "str_aux.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 char *strCopyToNew(char *str){
     char *new = malloc(strlen(str) + 1);
@@ -23,3 +24,11 @@ Vector *strToVector(char *str, char *delims){
 }
 
 
+char *fgetsNoNewline(char *str, int num, FILE *stream){
+    char *ret_val = fgets(str, num, stream);
+    char *nl = strchr(str, '\n');
+    if (nl){
+        *nl = '\0';
+    }
+    return ret_val;
+}
