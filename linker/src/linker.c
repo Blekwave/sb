@@ -31,16 +31,18 @@ int gatherFromFile(char *addr, Vector *instrs, SymTable *st, int ilc){
         char *pch = strtok(buf, " ");
         char *label = pch;
         pch = strtok(NULL, " ");
-        int pos = atoi(pch) + ilc; // relative position + ilc of the begin-
-                                   // ning of the module in the linked file.
+        int pos = atoi(pch) + ilc - 1; // relative position + ilc of the begin-
+                                       // ning of the module in the linked file.
 
         stInsert(st, label, pos);
     }
 
     while (fgetsNoNewline(buf, MAX_LINE_LEN - 1, in)){
-        char *instr = strCopyToNew(buf);
-        vPush(instrs, &instr);
-        ilc++;
+        if (strcmp(buf, "") != 0){
+            char *instr = strCopyToNew(buf);
+            vPush(instrs, &instr);
+            ilc++;
+        }
     }
 
     return ilc;
