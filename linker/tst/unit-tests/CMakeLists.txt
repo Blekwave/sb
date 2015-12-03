@@ -8,11 +8,15 @@ macro (create_test target)
   add_test (NAME ${target} COMMAND $<TARGET_FILE:${target}>)
 endmacro (create_test)
 
-# add_executable(bucket_test bucket.c)
-# target_link_libraries(bucket_test bucket)
-# create_test(bucket_test)
+add_executable(bucket_test bucket.c)
+target_link_libraries(bucket_test bucket)
+create_test(bucket_test)
 
-# add_executable(map_test map.c)
-# target_link_libraries(map_test map)
-# create_test(map_test)
+add_executable(map_test map.c)
+target_link_libraries(map_test map)
+create_test(map_test)
+
+add_executable(vector_test vector.c)
+target_link_libraries(vector_test vector)
+create_test(vector_test)
 
