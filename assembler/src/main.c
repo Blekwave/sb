@@ -6,7 +6,8 @@ int main(int argc, char const *argv[])
 {
     if (argc < 3 || argc > 4){
         fprintf(stderr, "ERROR: Wrong call format or number of parameters.\n"
-                "FORMAT: <assembler exec.> in_file out_file output_mode\n");
+                "FORMAT: <assembler exec.> in_file out_file [s|l|v]\n"
+                "(s: simple, l: linker output, v: verbose)\n");
         exit(1);
     }
 
