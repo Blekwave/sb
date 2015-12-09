@@ -14,28 +14,28 @@
             READ R4; c: Operando 2
 
 ADD_TEST:   LOAD R5 ADD_OPCODE
-            SUB R5 R4
+            SUB R5 R2
             JNZ SUB_TEST
             CALL ADD
             WRITE R5
             JMP END
 
 SUB_TEST:   LOAD R5 SUB_OPCODE
-            SUB R5 R4
+            SUB R5 R2
             JNZ MUL_TEST
             CALL SUB
             WRITE R5
             JMP END
 
 MUL_TEST:   LOAD R5 MUL_OPCODE
-            SUB R5 R4
+            SUB R5 R2
             JNZ DIV_TEST
             CALL MUL
             WRITE R5
             JMP END
 
 DIV_TEST:   LOAD R5 DIV_OPCODE
-            SUB R5 R4
+            SUB R5 R2
             JNZ EXP_TEST
             CALL DIV
             WRITE R5
@@ -43,7 +43,7 @@ DIV_TEST:   LOAD R5 DIV_OPCODE
             JMP END
 
 EXP_TEST:   LOAD R5 EXP_OPCODE
-            SUB R5 R4
+            SUB R5 R2
             JNZ END
             CALL EXP
             WRITE R5

@@ -10,14 +10,14 @@ EXP:    PUSH R3
         COPY R7 R3; Copia parametros originais para temporários
         COPY R8 R4
 
-ELOOP:  JZ END
+ELOOP:  JZ EEND
         COPY R3 R5; -\ Parâmetros
         COPY R4 R7; -/ da função.
         CALL MUL
         ; O valor de retorno de MUL já é R5, então não é preciso copiá-lo
         ; para outro registrador.
         SUB R8 R1
-        JMP LOOP
+        JMP ELOOP
 
 EEND:   POP R8
         POP R7

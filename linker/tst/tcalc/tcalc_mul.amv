@@ -27,8 +27,8 @@ MULLP:  JZ MULE
         SUB R4 R1
         JMP MULLP
 
-        POP R4
+MULE:   POP R4
         POP R3
 
-MULE:   RET
+        RET
         END
