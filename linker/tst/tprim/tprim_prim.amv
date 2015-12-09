@@ -1,0 +1,29 @@
+; Checa se um número é primo
+; Entrada: R3
+; Saída: R5 (0 -> Composto, 1 -> Primo)
+
+PRIM:       PUSH R3
+            PUSH R4
+            PUSH R6
+            PUSH R8
+            COPY R4 R1
+
+PRIMLOOP:   ADD R4 R1
+            COPY R8 R3
+            SUB R8 R4
+            JZ IS_PRIME
+            CALL DIV
+            COPY R6 R6; Atualiza PSW de acordo com o resto da divisão
+            JNZ PRIMLOOP
+
+NOT_PRIME:  COPY R5 R0
+            JMP PRIMEND
+
+IS_PRIME:   COPY R5 R1
+
+PRIMEND:    POP R8
+            POP R6
+            POP R4
+            POP R3
+            RET
+            END

@@ -1,0 +1,22 @@
+; Teste 2 - Próximo primo
+; Dado um número inteiro, retorna o próximo número primo maior do que ele.
+
+            LOAD R0 ZERO
+            LOAD R1 ONE
+            LOAD R2 TWO
+
+            READ R10; Entrada do programa
+
+            COPY R3 R10
+
+NXPRLOOP:   ADD R3 R1
+            CALL PRIM
+            JZ NXPRLOOP
+
+            WRITE R3
+
+            HALT
+ZERO:       WORD 0
+ONE:        WORD 1
+TWO:        WORD 2
+            END
