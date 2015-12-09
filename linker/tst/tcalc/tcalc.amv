@@ -1,0 +1,62 @@
+; Teste 1 - Calculadora (tcalc.asm)
+; Efetua uma operação entre dois operandos, a depender do código de operação.
+; 1: Adição (tcalc_add.asm)
+; 2: Subtração (tcalc_sub.asm)
+; 3: Multiplicação (tcalc_mul.asm)
+; 4: Divisão (tcalc_div.asm)
+; 5: Exponenciação (tcalc_exp.asm)
+
+            LOAD R0 ZERO
+            LOAD R1 ONE
+
+            READ R2; a: Operação a ser realizada
+            READ R3; b: Operando 1
+            READ R4; c: Operando 2
+
+ADD_TEST:   LOAD R5 ADD_OPCODE
+            SUB R5 R4
+            JNZ SUB_TEST
+            CALL ADD
+            WRITE R5
+            JMP END
+
+SUB_TEST:   LOAD R5 SUB_OPCODE
+            SUB R5 R4
+            JNZ MUL_TEST
+            CALL SUB
+            WRITE R5
+            JMP END
+
+MUL_TEST:   LOAD R5 MUL_OPCODE
+            SUB R5 R4
+            JNZ DIV_TEST
+            CALL MUL
+            WRITE R5
+            JMP END
+
+DIV_TEST:   LOAD R5 DIV_OPCODE
+            SUB R5 R4
+            JNZ EXP_TEST
+            CALL DIV
+            WRITE R5
+            WRITE R6
+            JMP END
+
+EXP_TEST:   LOAD R5 EXP_OPCODE
+            SUB R5 R4
+            JNZ END
+            CALL EXP
+            WRITE R5
+
+END:        HALT
+
+ZERO:       WORD 0
+ONE:        WORD 1
+
+ADD_OPCODE: WORD 1
+SUB_OPCODE: WORD 2
+MUL_OPCODE: WORD 3
+DIV_OPCODE: WORD 4
+EXP_OPCODE: WORD 5
+
+            END

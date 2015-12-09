@@ -1,0 +1,27 @@
+; Exponenciação inteira
+; Operandos: R3 ** R4
+; Saída: R5
+
+EXP:    PUSH R3
+        PUSH R4
+        PUSH R7
+        PUSH R8
+        COPY R5 R1; Inicializa resultado como 1
+        COPY R7 R3; Copia parametros originais para temporários
+        COPY R8 R4
+
+ELOOP:  JZ END
+        COPY R3 R5; -\ Parâmetros
+        COPY R4 R7; -/ da função.
+        CALL MUL
+        ; O valor de retorno de MUL já é R5, então não é preciso copiá-lo
+        ; para outro registrador.
+        SUB R8 R1
+        JMP LOOP
+
+EEND:   POP R8
+        POP R7
+        POP R4
+        POP R3
+        RET
+        END
