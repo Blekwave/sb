@@ -18,7 +18,7 @@
 
 \numberwithin{equation}{section}
 
-\title{Trabalho Prático 3 - Expansor de Macros}
+\title{Trabalho Prático 4 - Ligador}
 \author{Victor Pires Diniz}
 
 \begin{document}
@@ -29,23 +29,22 @@ Software Básico - 2º Semestre de 2015
 
 \section{Descrição do trabalho}
 
-O terceiro trabalho prático do semestre envolve o desenvolvimento de um expansor de macros para o código de montagem de uma máquina virtual especificada, para a qual foram feitos um emulador e um montador nos dois trabalhos prévios. O expansor de macros teria suporte a macros definidas em qualquer ponto no programa e instanciadas quantas vezes fosse necessário. Haveria, também, suporte a parâmetros, podendo haver um parâmetro ou nenhum. As macros poderiam ser instanciadas dentro de outras macros, mas não definidas.
+O terceiro trabalho prático do semestre envolve o desenvolvimento de um ligador para o código de máquina de uma máquina virtual especificada, para a qual foram feitos um emulador, um expansor de macros e um montador nos três trabalhos prévios. O ligador permite a modularização dos programas no assembly da máquina, permitindo a expansão de macros e montagem separada de cada módulo e conectando o código de máquina gerado pelos módulos em um só arquivo, que pode ser executado pelo emulador.
 
-Macros são uma forma simples e eficiente de abstração para o código de máquina, permitindo reutilização de código de forma relativamente flexível sem nenhum custo de desempenho em tempo de execução, visto que as macros são expandidas durante o processo de montagem.
+O ligador proposto na especificação deveria ser capaz de ligar os sub-programas com base em informação extra sobre os símbolos de cada módulo fornecida durante o processo de montagem. Por essa razão, foi necessário realizar algumas mudanças também no montador, para que esse pudesse imprimir a tabela de símbolos dos módulos antes do programa.
 
 \section{Implementação e decisões de projeto}
 
-O código do expansor de macros está dividido semanticamente entre vários módulos:
+O código do ligador está dividido semanticamente entre vários módulos:
 
 \begin{itemize}
-    \item \emph{main.c}: recebe parâmetros por linha de comando e chama o expansor de macros apropriadamente.
+    \item \emph{main.c}: recebe parâmetros por linha de comando e chama o ligador apropriadamente.
     \item Map (\emph{map.c, map.h, bucket.c, bucket.h}): implementa uma tabela de dispersão genérica, instanciada na tabela de macros.
     \item Função hash auxiliar (\emph{hash\_aux.c, hash\_aux.h}): contém uma função para hashing de string.
-    \item Parser de linhas de código de montagem (\emph{line\_parser.c, line\_parser.h}): contém uma função que divide as linhas do código de montagem nos seus quatro elementos semânticos (label, operador e dois operandos).
     \item Funções auxiliares para strings (\emph{str\_aux.c, str\_aux.h}): contém duas funções para auxiliar no uso de strings ao longo do código.
-    \item Vector (\emph{vector.c, vector.h}): implementa uma lista dinâmica de tipo único, utilizada na implementação da tabela de macros.
-    \item Tabela de macros (\emph{macro\_table.c, macro\_table.h}): tipo onde as macros são armazenadas e, posteriormente, de onde elas são instanciadas. Realiza a substituição de parâmetros e o tratamento das labels definidas dentro das macros.
-    \item Expansor (\emph{expander.c, expander.h}): módulo principal do expansor de macros. Define a função principal do programa e, internamente, realiza as duas passadas do expansor de macros.
+    \item Vector (\emph{vector.c, vector.h}): implementa uma lista dinâmica de tipo único, utilizada na implementação do ligador para agregar os módulos.
+    \item Tabela de símbolos (\emph{sym\_table.c, sym\_table.h}): tipo implementado para contenção da tabela de símbolos de cada módulo carregado. Usa a biblioteca \emph{Map} internamente.
+    \item Ligador (\emph{linker.c, linker.h}): módulo principal do ligador. Define a função principal do programa e, internamente, realiza as duas passadas do ligador.
 \end{itemize}
 
 Os mais importantes deles serão analisados a seguir em mais detalhe.
@@ -58,54 +57,52 @@ O módulo map contém a implementação de uma hash table totalmente genérica, 
 
 Este módulo implementa uma lista genérica dinamicamente alocada para armazenar as linhas de código de montagem das macros. A implementação dessa lista é feita de maneira contígua, com um vetor interno à estrutura. Esse vetor é expandido dinamicamente conforme necessário, crescendo exponencialmente (por um fator de 1,5) sempre que o número de elementos alcança o número máximo de elementos do vetor.
 
-\subsection{Tabela de macros}
+\subsection{Tabela de símbolos}
 
-A tabela de macros é um módulo essencial para o funcionamento deste expansor, interagindo diretamente com o processo de expansão. Além das funções de inicialização e finalização (\emph{mtCreate} e \emph{mtDestroy}, respectivamente), o módulo disponibiliza duas funções principais: inserção e avaliação.
+Define um tipo abstrato de dados para ser utilizado como tabela de símbolos, criando uma camada de abstração sobre um Map e escondendo os detalhes de sua funcionalidade.
 
-A tabela de macros em si consiste em um Map de strings para um tipo \emph{Macro}, definido internamente. Esse tipo contém as informações importantes a serem guardadas sobre as macros definidas: o conteúdo textual de cada uma armazenado num \emph{Vector} de strings, o nome do seu parâmetro a ser substituído (opcional), o número de vezes que a macro foi instanciada no programa e um Map que armazena as labels definidas dentro da macro.
+\subsection{Ligador}
 
-\emph{mtInsert}, a função de inserção, tem funcionamento simples: ela apenas insere a macro nova no Map interno à tabela de macros. A função \emph{mtEval}, porém, é mais complexa. Essa função é responsável por avaliar a macro, substituir o seu parâmetro pelo parâmetro da instanciação em questão, adicionar um sufixo às labels definidas internamente para evitar conflitos e retornar uma string que contenha essa macro. Antes disso, ocorre uma etapa de pré-processamento, caso a macro esteja sendo invocada pela primeira vez. Isso se deve à possibilidade de instanciação de macros dentro de macros: após o pré-processamento, o conteúdo do vetor da macro contém as versões expandidas das suas macros internas. Depois disso, são substituídos os termos citados e a função retorna a string com a macro pronta para uso no código de montagem.
+O ligador opera em dois passos principais. O primeiro deles, desempenhado na função \emph{gatherProgramsAndLabels}, consiste em passar pelo código de máquina em busca de labels, registrando o conteúdo de cada uma na tabela de símbolos. Esse processo é realizado para cada um dos módulos a ser ligados. 
 
-\subsection{Expansor}
-
-O expansor de macros opera em dois passos principais. O primeiro deles, desempenhado na função \emph{buildMacroTable}, consiste em passar pelo código de montagem em busca de macros, registrando o conteúdo de cada uma na tabela de macros. 
-
-Ao passar pela segunda vez, com a função \emph{replaceAndOutput}, a expansão real é realizada, imprimindo para o arquivo de saída o código de montagem obtido com a expansão das macros. Definições de macro são completamente ignoradas, visto que elas já foram processadas anteriormente, e linhas de código que não contém macros ou definições são impressas intactas.
+Ao passar pela segunda vez, com a função \emph{processLabelsAndPrint}, a ligação é realizada, imprimindo para o arquivo de saída o código de máquina obtido com a junção de cada módulo. As labels tem suas posições tratadas com base na posição relativa de cada módulo dentro do programa unido e, também, devido à relatividade dos deslocamentos no código da máquina virtual.
 
 \section{Compilação e execução}
 
-A compilação do expansor de macros pode ser realizada através da \emph{makefile} disponibilizada ou diretamente através do \emph{GCC} ou outro compilador C. Caso compilado através da \emph{makefile}, o executável estará localizado na pasta \verb|bin/|. A execução do programa deve ser realizada através da linha de comando, na seguinte forma,
+A compilação do ligador pode ser realizada através da \emph{makefile} disponibilizada ou diretamente através do \emph{GCC} ou outro compilador C. Caso compilado através da \emph{makefile}, o executável estará localizado na pasta \verb|bin/|. A execução do programa deve ser realizada através da linha de comando, na seguinte forma,
 
 \begin{verbatim}
-    {endereço do executável do expansor} <input_addr> <output_addr>
+    {end. do ligador} -m <main> -o <saída> [p1 p2 ...]
 \end{verbatim}
 
-em que:
+onde:
 
 \begin{itemize}
-    \item \verb|input_addr|: endereço para o arquivo de entrada, em código de montagem.
-    \item \verb|output_addr|: endereço para o arquivo de saída a ser criado.
+    \item Main: endereço para o arquivo que contém o programa principal dos programas a serem conectados.
+    \item Saída: endereço para o arquivo de saída a ser criado.
+    \item P1, P2 etc: outros módulos a ser conectados.
 \end{itemize}
+
+A ordem dos parâmetros não é relevante. O programa principal e saída devem ser precedidos de suas respectivas flags, mas podem aparecer ao final ou em qualquer outro lugar da chamada de execução.
 
 \section{Testes realizados}
 
-Na pasta de testes presente no pacote deste trabalho, há diversos programas que foram utilizados para garantir o bom funcionamento do expansor de macros, cobrindo diversas formas de instanciação e definição de macros no programa. Vários deles foram implementados de acordo com o pedido na especificação do trabalho. Imagens da execução dos testes estão disponíveis no apêndice desta documentação. Segue abaixo uma breve descrição do comportamento de cada programa:
+Na pasta de testes presente no pacote deste trabalho, há diversos programas que foram utilizados para garantir o bom funcionamento do ligador, cobrindo diversas formas de definição de labels no programa e interligação do código. Vários deles foram implementados de acordo com o pedido na especificação do trabalho. Imagens da execução dos testes estão disponíveis no apêndice desta documentação. Segue abaixo uma breve descrição do comportamento de cada programa:
 
 \begin{itemize}
-    \item \verb|tfat.i|: Calcula o fatorial de um número natural. \emph{Pedido na especificação do trabalho.}
-    \item \verb|tmdc.i|: Calcula o MDC de dois números inteiros. \emph{Pedido na especificação do trabalho.}
-    \item \verb|tspec0.i|: Imprime o maior valor entre dois inteiros. \emph{Disponibilizado na especificação do trabalho.}
-    \item \verb|tspec1.i|: Testa funcionalidade do expansor para macros sem parâmetros, gera código de montagem inválido. \emph{Disponibilizado na especificação do trabalho.}
-    \item \verb|tspec2.i|: Testa funcionalidade do expansor para macros com parâmetros, gera código de montagem inválido. \emph{Disponibilizado na especificação do trabalho.}
+    \item \emph{tcalc} (\emph{tcalc.amv} - \textbf{módulo principal}, \emph{tcalc\_add.amv}, \emph{tcalc\_div.amv}, \emph{tcalc\_exp.amv}, \emph{tcalc\_mul.amv}, \emph{tcalc\_sub.amv}): Realiza uma operação entre dois números inteiros, definida pela entrada entre adição, subtração, divisão, exponenciação e multiplicação. Cada módulo implementa uma dessas operações, com exceção do módulo principal, que recebe a entrada do usuário e chama os módulos. \emph{Pedido na especificação do trabalho.}
+    \item \emph{tprim} (\emph{tprim.amv} - \textbf{módulo principal}, \emph{tprim\_div.amv}, \emph{tprim\_prim.amv}): Dado um número, o programa encontra menor número primo maior que o número fornecido. Os módulos auxiliares são responsáveis por implementar divisão inteira e uma operação que determina se um número é ou não primo. \emph{Pedido na especificação do trabalho.}
+    \item \emph{tspec} (\emph{main.amv} - \textbf{módulo principal}, \emph{calculo.amv}): Determina o maior entre dois números. O módulo principal recebe os números da entrada padrão e os salva na memória. O módulo auxiliar carrega os dados da memória, determina qual é o maior número e imprime. \emph{Disponibilizado na especificação do trabalho.}
+    \item \emph{ttriv} (\emph{main.amv} - \textbf{módulo principal}, \emph{modulo.amv}): Imprime um número arbitrário. O programa principal apenas chama o módulo auxiliar, que imprime o valor definido em uma label do programa principal.
 \end{itemize}
 
 \subsection{Testes unitários}
 
-Além das entradas de teste elaboradas, foram criados também diversos \emph{unit tests}, com o propósito de testar a funcionalidade de cada módulo do expansor de macro. Esses testes estão disponíveis na pasta \verb|unit-tests/|, dentro da pasta de testes, e podem ser compilados com o comando \verb|make tests|, que utiliza uma funcionalidade adicional da \emph{makefile} providenciada. Após a compilação, eles estarão localizados na pasta \verb|bin/test-bin/|.
+Além das entradas de teste elaboradas, foram criados também diversos \emph{unit tests}, com o propósito de testar a funcionalidade de cada módulo do ligador. Esses testes estão disponíveis na pasta \verb|unit-tests/|, dentro da pasta de testes, e podem ser compilados com o comando \verb|make tests|, que utiliza uma funcionalidade adicional da \emph{makefile} providenciada. Após a compilação, eles estarão localizados na pasta \verb|bin/test-bin/|.
 
 \section{Conclusão}
 
-Neste trabalho, foi implementado um expansor de macro para uma máquina virtual, definido de acordo com a especificação fornecida. O comportamento e a implementação do expansor de macro foram discutidos no contexto dos testes realizados e da interação com o emulador criado no trabalho prático anterior, de forma a garantir que as instruções e pseudo-instruções funcionam como previsto.
+Neste trabalho, foi implementado um ligador para uma máquina virtual, definido de acordo com a especificação fornecida. O comportamento e a implementação do ligador foram discutidos no contexto dos testes realizados e da interação com o emulador e o montador criados nos trabalhos práticos anteriores, de forma a garantir que a ligação funciona como previsto.
 
 % \appendix
 
