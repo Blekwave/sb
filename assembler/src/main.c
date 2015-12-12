@@ -18,10 +18,10 @@ int main(int argc, char const *argv[])
 
     if (argc == 4 && argv[3][0] == 'v'){
         om = om_verbose;
-    } if (argc == 4 && argv[3][0] == 'l'){
-        om = om_linker;
-    } else {
+    } if (argc == 4 && argv[3][0] == 's'){
         om = om_simple;
+    } else {
+        om = om_linker;
     }
 
     asmAssemble(src_addr, dest_addr, om);
