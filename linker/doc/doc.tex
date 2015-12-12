@@ -67,6 +67,12 @@ O ligador opera em dois passos principais. O primeiro deles, desempenhado na fun
 
 Ao passar pela segunda vez, com a função \emph{processLabelsAndPrint}, a ligação é realizada, imprimindo para o arquivo de saída o código de máquina obtido com a junção de cada módulo. As labels tem suas posições tratadas com base na posição relativa de cada módulo dentro do programa unido e, também, devido à relatividade dos deslocamentos no código da máquina virtual.
 
+\section{Modificações no montador e formato do arquivo de entrada}
+
+Para garantir que a ligação possa ser feita, é necessário fornecer, como entrada para o ligador, o código de máquina acompanhado da tabela de símbolos de cada módulo a ser ligado. Foi necessário, portanto, modificar o montador implementado no segundo trabalho prático para fornecer essas informações e compilar sem substituir as labels por seus respectivos endereços, deixando essa funcionalidade para o ligador.
+
+Após as modificações, os arquivos de código de máquina gerador a partir do código de montagem pelo montador contém, no início do arquivo, a pseudo-instrução \verb|BEGINSM|, que denota o início da tabela de símbolos. Depois disso, cada linha da tabela de símbolos está no formato \verb|label pos|, onde label e pos correspondem ao nome da label e à sua posição no módulo, respectivamente. O fim da tabela de símbolos é marcado pela pseudo-instrução \verb|ENDSM|, após a qual segue o código de máquina do programa normalmente, até o fim do arquivo.
+
 \section{Compilação e execução}
 
 A compilação do ligador pode ser realizada através da \emph{makefile} disponibilizada ou diretamente através do \emph{GCC} ou outro compilador C. Caso compilado através da \emph{makefile}, o executável estará localizado na pasta \verb|bin/|. A execução do programa deve ser realizada através da linha de comando, na seguinte forma,
@@ -104,34 +110,34 @@ Além das entradas de teste elaboradas, foram criados também diversos \emph{uni
 
 Neste trabalho, foi implementado um ligador para uma máquina virtual, definido de acordo com a especificação fornecida. O comportamento e a implementação do ligador foram discutidos no contexto dos testes realizados e da interação com o emulador e o montador criados nos trabalhos práticos anteriores, de forma a garantir que a ligação funciona como previsto.
 
-% \appendix
+\appendix
 
-% \section{Imagens de execução dos testes}
+\section{Imagens de execução dos testes}
 
-% \begin{figure}[h]
-%     \includegraphics[scale=0.7]{imagens/tspec_console.png}
-%     \centering
-%     \caption{Montagem em modo verboso e execução do teste tspec.i.}
-% \end{figure}
+\begin{figure}[h]
+    \includegraphics[scale=0.6]{imagens/tspec.png}
+    \centering
+    \caption{Montagem, ligação e execução do teste tspec.i.}
+\end{figure}
 
-% \begin{figure}[h]
-%     \includegraphics[scale=0.7]{imagens/tmdn_console.png}
-%     \centering
-%     \caption{Montagem em modo verboso e execução do teste tmdn.i.}
-% \end{figure}
+\begin{figure}[h]
+    \includegraphics[scale=0.6]{imagens/tcalc.png}
+    \centering
+    \caption{Montagem, ligação e execução do teste tcalc.i.}
+\end{figure}
 
-% \begin{figure}[h]
-%     \includegraphics[scale=0.7]{imagens/texp_console.png}
-%     \centering
-%     \caption{Montagem em modo verboso e execução do teste texp.i.}
-% \end{figure}
+\begin{figure}[h]
+    \includegraphics[scale=0.6]{imagens/tprim.png}
+    \centering
+    \caption{Montagem, ligação e execução do teste tprim.i.}
+\end{figure}
 
-% \begin{figure}[h]
-%     \includegraphics[scale=0.7]{imagens/unit_tests_console.png}
-%     \centering
-%     \caption{Compilação e execução dos testes unitários providenciados.}
-% \end{figure}
+\begin{figure}[h]
+    \includegraphics[scale=0.6]{imagens/ttriv.png}
+    \centering
+    \caption{Montagem, ligação e execução do teste ttriv.i.}
+\end{figure}
 
-% \FloatBarrier
+\FloatBarrier
 
 \end{document}
