@@ -35,4 +35,3 @@ build/
 *.sublime-project
 *.sublime-workspace
 release/
-doc/

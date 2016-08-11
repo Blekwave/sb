@@ -35,5 +35,4 @@ build/
 bin/
 *.sublime-project
 *.sublime-workspace
-doc/
 release/
