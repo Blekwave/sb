@@ -5,7 +5,7 @@ Assembly tools for an esoteric assembly language called the Khattab Machine. Thi
 
 All code is implemented in C. Makefiles are provided for compiling the programs in this repository. Unit tests are also available and can be run via `make tests`.
 
-Documentation about the task to be performed, the Khattab Machine, the implemented assembly language and the programs themselves is available in the PDFs in each directory. These are only available in Portuguese, since these were made for a college class on assembly, machine code and systems software.
+Documentation about the schoolwork's specification, the Khattab Machine, the implemented assembly language and the programs themselves is available in the PDFs in each directory. These are only available in Portuguese, since these were made for a college class on assembly, machine code and systems software. (I'm sorry :C)
 
 License
 =======
